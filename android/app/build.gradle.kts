@@ -6,6 +6,15 @@ plugins {
     id("com.google.gms.google-services")
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+} else {
+    println "WARNING: key.properties not found at ${keystorePropertiesFile.absolutePath}"
+}
+
+
 android {
     namespace = "com.jaramarket.vendor"
     compileSdk = flutter.compileSdkVersion
@@ -32,11 +41,21 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+            release {
+                keyAlias = keystoreProperties['keyAlias']
+                keyPassword = keystoreProperties['keyPassword']
+                storeFile = file(keystoreProperties['storeFile'])
+                storePassword = keystoreProperties['storePassword']
+            }
+        }
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Signing with the debug keys for now,
+            // so `flutter run --release` works.
+            // signingConfig = signingConfigs.debug
+            signingConfig = signingConfigs.release
         }
     }
 }

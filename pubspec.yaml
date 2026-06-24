@@ -46,7 +46,7 @@ dependencies:
   flutter_svg:
   circular_countdown_timer:
   image_picker:
-  font_awesome_flutter: 
+  # font_awesome_flutter: 
   url_launcher:
   dropdown_search:
   atomic_webview:
@@ -59,6 +59,7 @@ dependencies:
   flutter_local_notifications: ^21.0.0
   sqflite_common_ffi: ^2.4.0+3
   device_info_plus: ^13.1.0
+  font_awesome_flutter: ^11.0.0
 
 dev_dependencies:
   flutter_test:
