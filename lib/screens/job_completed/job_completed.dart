@@ -120,7 +120,7 @@ class _JobCompletedScreenState extends State<JobCompletedScreen>
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            myData.customer!,
+                            myData.displayCustomer,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -128,7 +128,7 @@ class _JobCompletedScreenState extends State<JobCompletedScreen>
                           ),
                           const Spacer(),
                           Text(
-                            'Order ID: ${myData.orderId}',
+                            'Order ID: ${myData.displayOrderId}',
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.grey,
@@ -159,7 +159,7 @@ class _JobCompletedScreenState extends State<JobCompletedScreen>
                                 spacing: 3,
                                 children: [
                                   Text(
-                                    myData.name!,
+                                    myData.displayName,
                                     style: const TextStyle(
                                       fontSize: 12,
                                       fontFamily: 'Inter',
@@ -169,7 +169,7 @@ class _JobCompletedScreenState extends State<JobCompletedScreen>
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    myData.unit!,
+                                    myData.unit ?? '',
                                     style: const TextStyle(
                                       fontSize: 12,
                                       fontFamily: 'Inter',
@@ -260,7 +260,7 @@ class _JobCompletedScreenState extends State<JobCompletedScreen>
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                '₦${myData.price!}',
+                                '₦${myData.price ?? '0.00'}',
                                 style: const TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
@@ -446,7 +446,7 @@ class _JobCompletedScreenState extends State<JobCompletedScreen>
                                                         if (!mounted)
                                                           return; // Ensure widget is still in the tree
                                                         controller.acceptOrder(
-                                                          myData.itemId!
+                                                          (myData.itemId ?? 0)
                                                               .toString(),
                                                           int.parse(vendorId),
                                                           myData,
@@ -543,7 +543,8 @@ class _JobCompletedScreenState extends State<JobCompletedScreen>
                                                     if (!mounted)
                                                       return; // Ensure widget is still in the tree
                                                     controller.rejectOrder(
-                                                      myData.itemId!.toString(),
+                                                      (myData.itemId ?? 0)
+                                                          .toString(),
                                                       int.parse(vendorId),
                                                       myData,
                                                     );

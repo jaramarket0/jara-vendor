@@ -63,12 +63,17 @@ class DashboardController extends GetxController {
         dashboardData.value = DashboardModel.fromJson(body);
         selectedPeriod.value = activePeriod;
       } else if (response.statusCode == 401) {
-        Get.snackbar('SESSEION EXPIRED', 'Please log in again to continue');
+        Get.snackbar('Session Expired', 'Please log in again to continue');
         Get.toNamed('/login');
       } else {
-        final body = jsonDecode(response.body);
-        errorMessage.value =
-            body['message']?.toString() ?? 'Failed to load dashboard';
+        try {
+          final body = jsonDecode(response.body);
+          errorMessage.value =
+              body['message']?.toString() ?? 'Failed to load dashboard';
+        } catch (_) {
+          errorMessage.value =
+              'Failed to load dashboard (${response.statusCode})';
+        }
       }
     } catch (e) {
       debugPrint('[DashboardController] Error: $e');

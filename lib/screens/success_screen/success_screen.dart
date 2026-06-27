@@ -79,8 +79,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                // 'Brenda OKeefe',
-                                widget.dataHistory.customer!,
+                                widget.dataHistory.displayCustomer,
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -104,8 +103,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                // '294.702.3148',
-                                widget.dataHistory.orderId.toString(),
+                                widget.dataHistory.displayOrderId,
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontFamily: 'Inter',
@@ -143,7 +141,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                                 spacing: 3,
                                 children: [
                                   Text(
-                                    widget.dataHistory.name!,
+                                    widget.dataHistory.displayName,
                                     style: const TextStyle(
                                       fontSize: 12,
                                       fontFamily: 'Inter',
@@ -153,7 +151,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    widget.dataHistory.unit!,
+                                    widget.dataHistory.unit ?? '',
                                     style: const TextStyle(
                                       fontSize: 12,
                                       fontFamily: 'Inter',
@@ -232,7 +230,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                             children: [
                               const Text('Order Cost'),
                               Text(
-                                "₦${widget.dataHistory.price!}",
+                                "₦${widget.dataHistory.price ?? '0.00'}",
                                 style: const TextStyle(
                                   fontSize: 24,
                                   fontFamily: 'Mont',

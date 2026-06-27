@@ -45,7 +45,7 @@ class OrdersController extends GetxController {
         myLog.log('Response: ${response.body}');
         myLog.log('Status Code: ${response.statusCode}');
         orderModel = orderModelFromJson(response.body);
-        availableData.value = orderModel.data!;
+        availableData.value = orderModel.data ?? [];
       } else {
         isLoadingOrders.value = false;
         Get.snackbar('Something Went Wrong', jsonDecode(response.body));
@@ -68,7 +68,7 @@ class OrdersController extends GetxController {
       if (response.statusCode == 201 || response.statusCode == 200) {
         isloadingAccpted.value = false;
         acceptedOrderModel = acceptedOrderModelFromJson(response.body);
-        acceptedData.value = acceptedOrderModel.data!;
+        acceptedData.value = acceptedOrderModel.data ?? [];
       } else {
         isloadingAccpted.value = false;
         Get.snackbar('Something Went Wrong', jsonDecode(response.body));

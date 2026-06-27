@@ -37,12 +37,15 @@ class OrderModel {
 class Data {
   int? itemId;
   String? customer;
-  int? orderId;
-  String? orderNo;
+  String? orderReference;
+  String? ingredientName;
+  String? productName;
   String? orderDate;
   String? name;
   String? price;
+  String? amount;
   String? unit;
+  int? quantity;
   String? imageUrl;
   String? status;
   RxBool isAccepted;
@@ -50,52 +53,68 @@ class Data {
   RxBool isCompleted;
   RxBool isStarted;
   dynamic vendor;
-  
 
-  Data(
-      {this.itemId,
-      this.customer,
-      this.orderId,
-      this.orderNo,
-      this.orderDate,
-      this.name,
-      this.price,
-      this.unit,
-      this.imageUrl,
-      this.status,
-      this.vendor}): isAccepted = RxBool(false),isRejected = RxBool(false), isCompleted = RxBool(false), isStarted = RxBool(false);
+  String get displayCustomer => customer ?? 'Customer';
+  String get displayName => ingredientName ?? name ?? 'N/A';
+  String get displayOrderId => orderReference ?? itemId?.toString() ?? 'N/A';
+
+  Data({
+    this.itemId,
+    this.customer,
+    this.orderReference,
+    this.ingredientName,
+    this.productName,
+    this.orderDate,
+    this.name,
+    this.price,
+    this.amount,
+    this.unit,
+    this.quantity,
+    this.imageUrl,
+    this.status,
+    this.vendor,
+  })  : isAccepted = RxBool(false),
+        isRejected = RxBool(false),
+        isCompleted = RxBool(false),
+        isStarted = RxBool(false);
 
   Data.fromJson(Map<String, dynamic> json)
       : isAccepted = RxBool(false),
         isRejected = RxBool(false),
         isCompleted = RxBool(false),
         isStarted = RxBool(false) {
-    itemId = json['item_id'];
-    customer = json['customer'];
-    orderId = json['order_id'];
-    orderNo = json['order_no'];
-    orderDate = json['order_date'];
+    itemId = json['id'] ?? json['item_id'] ?? json['ingredient_id'];
+    customer = json['customer_name'] ?? json['customer'];
+    orderReference = json['order_reference'] ?? json['order_no'];
+    ingredientName = json['ingredient_name'];
+    productName = json['product_name'];
+    orderDate = json['created_at'] ?? json['order_date'];
     name = json['name'];
     price = json['price'];
+    amount = json['amount'];
     unit = json['unit'];
+    quantity = json['quantity'];
     imageUrl = json['image_url'];
     status = json['status'];
     vendor = json['vendor'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['item_id'] = this.itemId;
-    data['customer'] = this.customer;
-    data['order_id'] = this.orderId;
-    data['order_no'] = this.orderNo;
-    data['order_date'] = this.orderDate;
-    data['name'] = this.name;
-    data['price'] = this.price;
-    data['unit'] = this.unit;
-    data['image_url'] = this.imageUrl;
-    data['status'] = this.status;
-    data['vendor'] = this.vendor;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = itemId;
+    data['customer_name'] = customer;
+    data['order_reference'] = orderReference;
+    data['ingredient_name'] = ingredientName;
+    data['product_name'] = productName;
+    data['order_date'] = orderDate;
+    data['name'] = name;
+    data['price'] = price;
+    data['amount'] = amount;
+    data['unit'] = unit;
+    data['quantity'] = quantity;
+    data['image_url'] = imageUrl;
+    data['status'] = status;
+    data['vendor'] = vendor;
     return data;
   }
 }

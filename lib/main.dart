@@ -143,8 +143,8 @@ void main() async {
   // ── Notifications & FCM ──────────────────────────────────────────────────
 
   try {
-    final RemoteMessage? initialMessage =
-        await FirebaseMessaging.instance.getInitialMessage();
+    final RemoteMessage? initialMessage = await FirebaseMessaging.instance
+        .getInitialMessage();
     if (initialMessage != null) {
       myLog.log(
         'App launched from terminated state: ${initialMessage.messageId}',
@@ -229,8 +229,8 @@ void main() async {
       onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     );
 
-    final NotificationSettings notificationSettings =
-        await fcm.requestPermission(alert: true, badge: true, sound: true);
+    final NotificationSettings notificationSettings = await fcm
+        .requestPermission(alert: true, badge: true, sound: true);
 
     if (notificationSettings.authorizationStatus ==
         AuthorizationStatus.authorized) {
@@ -314,16 +314,22 @@ void main() async {
 
   // ── Error reporting overlay (visible in release mode) ────────────────────
 
+  bool _isShowingError = false;
   void showError(Object error) {
+    if (_isShowingError) return;
+    _isShowingError = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctx = Get.context;
       if (ctx != null) {
-        AlertInfo.show(
-          typeInfo: TypeInfo.error,
-          context: ctx,
-          text: error.toString(),
-        );
+        try {
+          AlertInfo.show(
+            typeInfo: TypeInfo.error,
+            context: ctx,
+            text: error.toString(),
+          );
+        } catch (_) {}
       }
+      _isShowingError = false;
     });
   }
 
@@ -332,13 +338,13 @@ void main() async {
     showError(details.exception);
   };
 
-  runZonedGuarded(
-    () => runApp(MyApp(initialRoute: initialRoute)),
-    (error, stack) {
-      myLog.log('Uncaught error: $error\n$stack');
-      showError(error);
-    },
-  );
+  runZonedGuarded(() => runApp(MyApp(initialRoute: initialRoute)), (
+    error,
+    stack,
+  ) {
+    myLog.log('Uncaught error: $error\n$stack');
+    showError(error);
+  });
 }
 
 class MyApp extends StatelessWidget {

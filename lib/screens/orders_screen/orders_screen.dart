@@ -202,8 +202,7 @@ class _OrdersScreenState extends State<OrdersScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      // 'Brenda OKeefe',
-                      dataAvaialable.customer!,
+                      dataAvaialable.displayCustomer,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -227,8 +226,7 @@ class _OrdersScreenState extends State<OrdersScreen>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      // '294.702.3148',
-                      dataAvaialable.orderId.toString(),
+                      dataAvaialable.displayOrderId,
                       style: TextStyle(
                         fontSize: 10,
                         fontFamily: 'Inter',
@@ -266,9 +264,9 @@ class _OrdersScreenState extends State<OrdersScreen>
                       spacing: 3,
                       children: [
                         Text(
-                          dataAvaialable.name!.length > 7
-                              ? "${dataAvaialable.name!.substring(0, 6)}..."
-                              : dataAvaialable.name!,
+                          dataAvaialable.displayName.length > 7
+                              ? "${dataAvaialable.displayName.substring(0, 6)}..."
+                              : dataAvaialable.displayName,
                           style: const TextStyle(
                             fontSize: 12,
                             fontFamily: 'Inter',
@@ -278,7 +276,7 @@ class _OrdersScreenState extends State<OrdersScreen>
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          dataAvaialable.unit!,
+                          dataAvaialable.unit ?? '',
                           style: const TextStyle(
                             fontSize: 12,
                             fontFamily: 'Inter',
@@ -395,8 +393,7 @@ class _OrdersScreenState extends State<OrdersScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      // 'Brenda OKeefe',
-                      dataHistory.customer!,
+                      dataHistory.displayCustomer,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -420,8 +417,7 @@ class _OrdersScreenState extends State<OrdersScreen>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      // '294.702.3148',
-                      dataHistory.orderId.toString(),
+                      dataHistory.displayOrderId,
                       style: TextStyle(
                         fontSize: 10,
                         fontFamily: 'Inter',
@@ -459,9 +455,9 @@ class _OrdersScreenState extends State<OrdersScreen>
                       spacing: 3,
                       children: [
                         Text(
-                          dataHistory.name!.length > 7
-                              ? "${dataHistory.name!.substring(0, 6)}..."
-                              : dataHistory.name!,
+                          dataHistory.displayName.length > 7
+                              ? "${dataHistory.displayName.substring(0, 6)}..."
+                              : dataHistory.displayName,
                           style: const TextStyle(
                             fontSize: 12,
                             fontFamily: 'Inter',
@@ -471,7 +467,7 @@ class _OrdersScreenState extends State<OrdersScreen>
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          dataHistory.unit!,
+                          dataHistory.unit ?? '',
                           style: const TextStyle(
                             fontSize: 12,
                             fontFamily: 'Inter',
@@ -548,7 +544,7 @@ class _OrdersScreenState extends State<OrdersScreen>
                   children: [
                     const Text('Order Cost'),
                     Text(
-                      "₦${dataHistory.price!}",
+                      "₦${dataHistory.price ?? '0.00'}",
                       style: const TextStyle(
                         fontSize: 20,
                         fontFamily: 'Poppins',
@@ -559,14 +555,15 @@ class _OrdersScreenState extends State<OrdersScreen>
                     Row(
                       spacing: 3,
                       children: [
-                        dataHistory.status!.toLowerCase() == 'processing'
+                        (dataHistory.status ?? '').toLowerCase() == 'processing'
                             ? SvgPicture.asset('assets/processing.svg')
-                            : dataHistory.status!.toLowerCase() == 'pending'
+                            : (dataHistory.status ?? '').toLowerCase() ==
+                                'pending'
                             ? SvgPicture.asset('assets/rejected.svg')
                             : SvgPicture.asset('assets/completed.svg'),
-                        dataHistory.status!.toLowerCase() == 'pending'
+                        (dataHistory.status ?? '').toLowerCase() == 'pending'
                             ? const Text('rejected')
-                            : Text(dataHistory.status!),
+                            : Text(dataHistory.status ?? ''),
                       ],
                     ),
                   ],
