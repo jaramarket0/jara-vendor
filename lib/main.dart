@@ -131,69 +131,69 @@ void main() async {
     ),
   );
 
-final RemoteMessage? initialMessage =
-      await FirebaseMessaging.instance.getInitialMessage();
-  if (initialMessage != null) {
-    myLog.log(
-      'App launched from terminated state: ${initialMessage.messageId}',
-    );
-  }
+//final RemoteMessage? initialMessage =
+//      await FirebaseMessaging.instance.getInitialMessage();
+//  if (initialMessage != null) {
+//    myLog.log(
+//      'App launched from terminated state: ${initialMessage.messageId}',
+//    );
+//  }
   
-  final SendTokenService sendTokenService = Get.put(SendTokenService());
-  final fcm = FirebaseMessaging.instance;
+//  final SendTokenService sendTokenService = Get.put(SendTokenService());
+//  final fcm = FirebaseMessaging.instance;
 
   // ── Darwin (iOS/macOS) notification categories ──────────────────────────
 
-  final List<DarwinNotificationCategory> darwinNotificationCategories = [
-    DarwinNotificationCategory(
-      darwinNotificationCategoryText,
-      actions: [
-        DarwinNotificationAction.text(
-          'text_1',
-          'Action 1',
-          buttonTitle: 'Send',
-          placeholder: 'Placeholder',
-        ),
-      ],
-    ),
-    DarwinNotificationCategory(
-      darwinNotificationCategoryPlain,
-      actions: [
-        DarwinNotificationAction.plain('id_1', 'Action 1'),
-        DarwinNotificationAction.plain(
-          'id_2',
-          'Action 2 (destructive)',
-          options: {DarwinNotificationActionOption.destructive},
-        ),
-        DarwinNotificationAction.plain(
-          navigationActionId,
-          'Action 3 (foreground)',
-          options: {DarwinNotificationActionOption.foreground},
-        ),
-        DarwinNotificationAction.plain(
-          'id_4',
-          'Action 4 (auth required)',
-          options: {DarwinNotificationActionOption.authenticationRequired},
-        ),
-      ],
-      options: {DarwinNotificationCategoryOption.hiddenPreviewShowTitle},
-    ),
-  ];
+//  final List<DarwinNotificationCategory> darwinNotificationCategories = [
+  //  DarwinNotificationCategory(
+ //     darwinNotificationCategoryText,
+ //     actions: [
+ //       DarwinNotificationAction.text(
+ //         'text_1',
+ //         'Action 1',
+//          buttonTitle: 'Send',
+//          placeholder: 'Placeholder',
+ //       ),
+//      ],
+//    ),
+ //   DarwinNotificationCategory(
+  //    darwinNotificationCategoryPlain,
+//      actions: [
+  //      DarwinNotificationAction.plain('id_1', 'Action 1'),
+  //      DarwinNotificationAction.plain(
+//      'id_2',
+    //'Action 2 (destructive)',
+  //        options: {DarwinNotificationActionOption.destructive},
+//        ),
+//        DarwinNotificationAction.plain
+    //navigationActionId,
+     //     'Action 3 (foreground)',
+   //       options: {DarwinNotificationActionOption.foreground},
+ //       ),
+   //     DarwinNotificationAction.plain(
+   //       'id_4',
+    //      'Action 4 (auth required)',
+   //       options: {DarwinNotificationActionOption.authenticationRequired},
+  //      ),
+//      ],
+  //    options: {DarwinNotificationCategoryOption.hiddenPreviewShowTitle},
+//    ),
+//  ];
 
   // ── Platform-specific init settings ─────────────────────────────────────
 
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
+ // const AndroidInitializationSettings initializationSettingsAndroid =
+  //    AndroidInitializationSettings('@mipmap/ic_launcher');
 
   // DarwinInitializationSettings replaces the deprecated IOSInitializationSettings
-  final DarwinInitializationSettings initializationSettingsIOS =
-      DarwinInitializationSettings(
-        requestAlertPermission: false,
-        requestBadgePermission: false,
-        requestSoundPermission: false,
-        notificationCategories: darwinNotificationCategories,
-      );
-
+//  final DarwinInitializationSettings initializationSettingsIOS =
+ //     DarwinInitializationSettings(
+   //     requestAlertPermission: false,
+//        requestBadgePermission: false,
+//        requestSoundPermission: false,
+ //       notificationCategories: darwinNotificationCategories,
+//      );
+/**
   final DarwinInitializationSettings initializationSettingsMacOS =
       DarwinInitializationSettings(
         requestAlertPermission: false,
@@ -292,7 +292,7 @@ final RemoteMessage? initialMessage =
   });
 
   // ── Desktop SQLite init ──────────────────────────────────────────────────
-
+**/
   if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
