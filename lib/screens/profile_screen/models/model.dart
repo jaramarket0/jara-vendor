@@ -49,7 +49,7 @@ class ProfileData {
   String? createdAt;
   String? lastLogin;
   Wallet? wallet;
-  List<dynamic>? favorites;  // Changed from List<Null> to List<dynamic>
+  int? favorites;
   List<ContactAddress>? contactAddress;
   
 
@@ -151,7 +151,7 @@ class ContactAddress {
   String? lga;
   String? contactAddress;
   String? phoneNumber;
-  String? isDefault;
+  bool? isDefault;
   String? createdAt;
   
 

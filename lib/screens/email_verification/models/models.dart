@@ -59,7 +59,7 @@ class Data {
   String? createdAt;
   String? lastLogin;
   Wallet? wallet;
-  List<dynamic>? favorites;
+  int? favorites;
   List<dynamic>? contactAddress;
 
   Data({

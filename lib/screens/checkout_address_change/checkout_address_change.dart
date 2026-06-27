@@ -44,44 +44,29 @@ class _CheckoutAddressChangeScreenState
         color: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: CustomButton(
-            text: 'Save Address',
-            onPressed: () {
-              if (controller.isValid()) {
-                // Get.snackbar('Success', 'Address changed successfully',
-                //     backgroundColor: Colors.green, colorText: Colors.white);
-                if (isFromProfile) {
-                  // Get.snackbar('Success', 'is from profile',
-                  //     backgroundColor: Colors.green,
-                  //     colorText: Colors.white,
-                  //     icon: Icon(
-                  //       Icons.check_circle,
-                  //       color: Colors.white,
-                  //     ));
-                  controller.storeAddress();
-                  // Get.back(result: {'country':'nigeria'});
-                } else {
-                  //   Get.back(result: {'country':'nigeria'});
-                  controller.processUpdateCheckoutAddress();
-                  // Get.snackbar('Success', 'is not from profile',
-                  //     backgroundColor: Colors.blueGrey,
-                  //     colorText: Colors.white,
-                  //     icon: Icon(
-                  //       Icons.check_circle,
-                  //       color: Colors.white,
-                  //     ));
-                }
-                //Get.back();
-              } else {
-                Get.snackbar(
-                  'Error',
-                  'Please select all fields',
-                  backgroundColor: Colors.red,
-                  colorText: Colors.white,
-                );
-              }
-            },
-          ),
+          child: Obx(() => controller.isLoading.value
+              ? const Center(
+                  child: CircularProgressIndicator(color: Colors.amber),
+                )
+              : CustomButton(
+                  text: 'Save Address',
+                  onPressed: () {
+                    if (controller.isValid()) {
+                      if (isFromProfile) {
+                        controller.storeAddress();
+                      } else {
+                        controller.processUpdateCheckoutAddress();
+                      }
+                    } else {
+                      Get.snackbar(
+                        'Error',
+                        'Please select all fields',
+                        backgroundColor: Colors.red,
+                        colorText: Colors.white,
+                      );
+                    }
+                  },
+                )),
           // ElevatedButton(
           //   onPressed: () {
           //     if (controller.isValid()) {

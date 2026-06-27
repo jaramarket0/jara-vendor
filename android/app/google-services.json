@@ -58,6 +58,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "915451905241-7c26na1uj3lpij623mbl78bsoatttu8t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jaramarket.vendor",
+            "certificate_hash": "89bc653682531ddf641c3de8f7fa0655dd1b6cda"
+          }
+        },
+        {
+          "client_id": "915451905241-8of0tq8vkerbmlj7hls6ki9qg12p00ko.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jaramarket.vendor",
+            "certificate_hash": "2c0062f4935c0415c418bd2cc80d4bd76c78dc02"
+          }
+        },
+        {
           "client_id": "915451905241-s4d5m4bqg764u142n9biopk0rl6ats8j.apps.googleusercontent.com",
           "client_type": 3
         }

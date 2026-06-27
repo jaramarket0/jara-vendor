@@ -23,12 +23,12 @@ class ForgetPasswordController extends GetxController {
       isLoading.value = false;
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        final email = emailController.text;
         emailController.dispose();
         Navigator.push(
           Get.context!,
           MaterialPageRoute(
-            builder: (context) =>
-                OtpVerificationScreen(email: emailController.text),
+            builder: (context) => OtpVerificationScreen(email: email),
           ),
         );
       } else {

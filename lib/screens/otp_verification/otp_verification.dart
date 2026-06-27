@@ -19,7 +19,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   );
   final List<FocusNode> _focusNodes = List.generate(4, (_) => FocusNode());
 
-  var email = Get.arguments['email'];
+  String get email => widget.email;
 
   @override
   void initState() {

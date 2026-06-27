@@ -48,7 +48,7 @@ class LoginData {
   String? createdAt;
   String? lastLogin;
   Wallet? wallet;
-  List<dynamic>? favorites;  // Changed from List<Null> to List<dynamic>
+  int? favorites;
   String? token; // Added token field
   String? token_type; // Added token_type field
   int? expires_in; // Added expires_in field

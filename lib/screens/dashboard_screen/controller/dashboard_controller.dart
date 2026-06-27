@@ -21,7 +21,8 @@ class DashboardController extends GetxController {
   /// 'day' | 'week' | 'month'  (default per API docs: week)
   final RxString selectedPeriod = 'week'.obs;
 
-  static const String _baseUrl = 'https://jaramarket.kenjeffy.com/api/jaram';
+  static const String _baseUrl =
+      'https://jaramarket-backend.onrender.com/api/jaram';
 
   // ─── Lifecycle ───────────────────────────────────────────────────────────────
   @override

@@ -3375,7 +3375,7 @@
     },
     {
       "key": "staging",
-      "value": "https://jaramarket.kenjeffy.com/api/jaram"
+      "value": "https://jaramarket-backend.onrender.com/api/jaram"
     },
     {
       "key": "token",

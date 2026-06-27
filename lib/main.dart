@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:jara_vendor/firebase_options.dart';
 import 'package:jara_vendor/routes/app_routes.dart';
 import 'package:jara_vendor/send_token_service.dart';
 import 'package:jara_vendor/utils/storage.dart';
@@ -39,8 +40,6 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 // import 'screens/order_history/order_history.dart';
 // import 'screens/job_progress/job_progress.dart';
 // import 'screens/job_completed/job_completed.dart';
-
-
 
 // ─── Globals ────────────────────────────────────────────────────────────────
 
@@ -119,10 +118,12 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   }
 }
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+    await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -309,8 +310,8 @@ final RemoteMessage? initialMessage =
   //   // Logger.init(kReleaseMode ? LogMode.live : LogMode.debug);
   //   // runApp(const MyApp());
   // });
-  
-   // await InAppWebViewController.setWebContentsDebuggingEnabled(true); // Optional
+
+  // await InAppWebViewController.setWebContentsDebuggingEnabled(true); // Optional
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   DataBase dataBase = Get.put(DataBase());
   var token = await dataBase.getToken();

@@ -64,7 +64,7 @@ class LoginController extends GetxController {
         await dataBase.savePhoneNumber(data.phoneNumber ?? 'N/A');
         await dataBase.saveRole(data.role ?? 'N/A');
         await dataBase.saveReferalCode(data.referralCode ?? 'N/A');
-        await dataBase.saveReferalCount(data.referralCount ?? 'N/A');
+        await dataBase.saveReferalCount(data.referralCount?.toString() ?? 'N/A');
         await dataBase.saveRefererId(data.referrerId ?? 'N/A');
 
         emailController.dispose();

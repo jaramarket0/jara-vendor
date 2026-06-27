@@ -203,7 +203,6 @@ class CheckoutAddressChangeController extends GetxController {
   }
 
   storeAddress() {
-    // Store the address data in shared preferences or any local storage
     final Map<String, dynamic> addressData = {
       'country_id': selectedCountryId,
       'state_id': selectedStateId,
@@ -214,10 +213,11 @@ class CheckoutAddressChangeController extends GetxController {
     };
 
     myLog.log('Storing address data: $addressData');
-    //  Call a method to save this data
+    isLoading.value = true;
     _apiService
         .addCheckoutAddress(addressData)
         .then((response) async {
+          isLoading.value = false;
           if (response.statusCode == 200 || response.statusCode == 201) {
             myLog.log('Address stored successfully: ${response.body}');
             Get.snackbar(
@@ -226,7 +226,6 @@ class CheckoutAddressChangeController extends GetxController {
               backgroundColor: Colors.green,
               colorText: Colors.white,
             );
-            // Get.back();
             if (Navigator.canPop(Get.context!)) {
               print('Can pop the current route');
               Navigator.pop(Get.context!, {
@@ -253,6 +252,7 @@ class CheckoutAddressChangeController extends GetxController {
           }
         })
         .catchError((error) {
+          isLoading.value = false;
           Get.snackbar(
             'Error',
             'An error occurred while storing address: $error',

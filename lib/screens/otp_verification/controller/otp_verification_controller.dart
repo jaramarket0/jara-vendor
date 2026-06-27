@@ -106,36 +106,24 @@ class OtpVerificationController extends GetxController {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         OverlayLoadingProgress.stop();
-        // Navigator.pushReplacement(
-        //   Get.context!,
-        //   MaterialPageRoute(builder: (context) => const LoginScreen()),
-        // );
         var responseBody = jsonDecode(response.body);
-        emailVerificationModel = emailVerificationModelFromJson(response.body);
-        data = emailVerificationModel.data!;
-        await dataBase.saveReferalCode(data.referralCode ?? 'N/A');
-        await dataBase.saveRole(data.role ?? 'N/A');
-        var message = responseBody['message'] ?? 'something went wrong';
-        ScaffoldMessenger.of(Get.context!).showSnackBar(
-          SnackBar(
-            content: Text('Success: \n${message}'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        // Get.offAllNamed('/login_screen');
-        //Navigator.of(Get.context!).push(CupertinoPageRoute(builder: (context)=> const ProfileSetupScreen()));
+        var message = responseBody['message'] ?? 'OTP validated successfully';
         Get.offAllNamed('/login');
+        Get.snackbar(
+          'Success',
+          message,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
       } else {
         OverlayLoadingProgress.stop();
         var responseBody = jsonDecode(response.body);
-        var message =
-            responseBody['errors']['otp'][0] ?? 'something went wrong';
-
-        ScaffoldMessenger.of(Get.context!).showSnackBar(
-          SnackBar(
-            content: Text('OTP verification failed: ${message}'),
-            backgroundColor: Colors.red,
-          ),
+        var message = responseBody['message'] ?? 'OTP verification failed';
+        Get.snackbar(
+          'Error',
+          message,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
         );
       }
     } catch (e) {

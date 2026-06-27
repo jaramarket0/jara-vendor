@@ -339,9 +339,7 @@ class ApiClient extends GetConnect {
 
       var response = await http.post(
         headers: header,
-        Uri.parse(
-          '$baseUrl/register?cache-buster=${fn_generateCacheBuster()}',
-        ),
+        Uri.parse('$baseUrl/register?cache-buster=${fn_generateCacheBuster()}'),
         body: jsonEncode({
           'firstname': firstName,
           'lastname': lastName,
@@ -446,12 +444,16 @@ class ApiClient extends GetConnect {
     // String? photoUrl,
   }) async {
     final url = Uri.parse('$baseUrl/google-signin');
-    _logRequest('POST', url, body: {
-      'id_token': idToken,
-      'role': role,
-      // if (displayName != null) 'display_name': displayName,
-      // if (photoUrl != null) 'photo_url': photoUrl,
-    });
+    _logRequest(
+      'POST',
+      url,
+      body: {
+        'id_token': idToken,
+        'role': role,
+        // if (displayName != null) 'display_name': displayName,
+        // if (photoUrl != null) 'photo_url': photoUrl,
+      },
+    );
     final response = await http.post(
       url,
       headers: <String, String>{
@@ -825,7 +827,7 @@ class ApiClient extends GetConnect {
     Map<String, dynamic> otpData,
   ) async {
     final url = Uri.parse(
-      'https://jaramarket.kenjeffy.com/api/jaram/validate-email',
+      'https://jaramarket-backend.onrender.com/api/jaram/validate-email',
     );
     _logRequest('POST', url, body: otpData);
     final response = await http.post(
