@@ -94,25 +94,38 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   if (message.notification != null) {
     final notification = message.notification!;
     final android = message.notification?.android;
+    final isOrder = ['new_order', 'order_status', 'order_item_status']
+        .contains(message.data['type']);
 
     if (android != null) {
       await bgPlugin.show(
-        id: notification.hashCode, // named param (v20+)
+        id: notification.hashCode,
         title: notification.title,
         body: notification.body,
-        notificationDetails: const NotificationDetails(
-          // renamed param (v20+)
-          android: AndroidNotificationDetails(
-            'high_importance_channel',
-            'High Importance Notifications',
-            channelDescription:
-                'This channel is used for important notifications.',
-            importance: Importance.max,
-            priority: Priority.max,
-            playSound: true,
-            enableVibration: true,
-            ticker: 'ticker',
-          ),
+        notificationDetails: NotificationDetails(
+          android: isOrder
+              ? const AndroidNotificationDetails(
+                  'order_channel',
+                  'Order Notifications',
+                  channelDescription: 'Sounds for new and updated orders.',
+                  importance: Importance.max,
+                  priority: Priority.max,
+                  sound: RawResourceAndroidNotificationSound('order_alert'),
+                  playSound: true,
+                  enableVibration: true,
+                  ticker: 'ticker',
+                )
+              : const AndroidNotificationDetails(
+                  'high_importance_channel',
+                  'High Importance Notifications',
+                  channelDescription:
+                      'This channel is used for important notifications.',
+                  importance: Importance.max,
+                  priority: Priority.max,
+                  playSound: true,
+                  enableVibration: true,
+                  ticker: 'ticker',
+                ),
         ),
       );
     }
@@ -258,22 +271,36 @@ void main() async {
         final android = message.notification?.android;
 
         if (android != null && !kIsWeb) {
+          final isOrder = ['new_order', 'order_status', 'order_item_status']
+              .contains(message.data['type']);
           flutterLocalNotificationsPlugin.show(
             id: notification.hashCode,
             title: notification.title,
             body: notification.body,
-            notificationDetails: const NotificationDetails(
-              android: AndroidNotificationDetails(
-                'high_importance_channel',
-                'High Importance Notifications',
-                channelDescription:
-                    'This channel is used for important notifications.',
-                importance: Importance.max,
-                priority: Priority.high,
-                playSound: true,
-                enableVibration: true,
-                ticker: 'ticker',
-              ),
+            notificationDetails: NotificationDetails(
+              android: isOrder
+                  ? const AndroidNotificationDetails(
+                      'order_channel',
+                      'Order Notifications',
+                      channelDescription: 'Sounds for new and updated orders.',
+                      importance: Importance.max,
+                      priority: Priority.max,
+                      sound: RawResourceAndroidNotificationSound('order_alert'),
+                      playSound: true,
+                      enableVibration: true,
+                      ticker: 'ticker',
+                    )
+                  : const AndroidNotificationDetails(
+                      'high_importance_channel',
+                      'High Importance Notifications',
+                      channelDescription:
+                          'This channel is used for important notifications.',
+                      importance: Importance.max,
+                      priority: Priority.high,
+                      playSound: true,
+                      enableVibration: true,
+                      ticker: 'ticker',
+                    ),
             ),
           );
         }

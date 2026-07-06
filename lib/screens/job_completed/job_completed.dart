@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:circular_countdown_timer/countdown_text_format.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,11 +21,14 @@ class JobCompletedScreen extends StatefulWidget {
   State<JobCompletedScreen> createState() => _JobCompletedScreenState();
 }
 
-class _JobCompletedScreenState extends State<JobCompletedScreen>
-//with AutomaticKeepAliveClientMixin
-{
-  // @override
-  // bool get wantKeepAlive => true;
+class _JobCompletedScreenState extends State<JobCompletedScreen> {
+  final AudioPlayer _tickPlayer = AudioPlayer();
+
+  @override
+  void dispose() {
+    _tickPlayer.dispose();
+    super.dispose();
+  }
 
   int _parseTimeToSeconds(String time) {
     if (time.contains(":")) {
@@ -336,12 +340,12 @@ class _JobCompletedScreenState extends State<JobCompletedScreen>
                               });
                             },
                             onChange: (String timeStamp) {
-                              // debugPrint('Countdown Changed $timeStamp');
-                              //  setState(() {
-
-                              //  });
                               int totalSecondsLeft = _parseTimeToSeconds(
                                 timeStamp,
+                              );
+                              _tickPlayer.play(
+                                AssetSource('timer_tick.wav'),
+                                volume: 0.6,
                               );
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 setState(() {
@@ -388,20 +392,23 @@ class _JobCompletedScreenState extends State<JobCompletedScreen>
                         SizedBox(
                           width: 90,
                           child: Obx(() {
+                            final accepted = myData.isAccepted.value ||
+                                myData.isStarted.value;
                             return myData.isRejected.value
                                 ? const SizedBox.shrink()
                                 : ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                       padding: EdgeInsets.zero,
-                                      backgroundColor: myData.isCompleted.value
-                                          ? Colors.grey
-                                          : const Color(0xffE83C00),
+                                      backgroundColor:
+                                          const Color(0xffE83C00),
                                     ),
-                                    onPressed: myData.isStarted.value
+                                    onPressed: accepted
                                         ? () {
                                             controller.countDownController
-                                                .reset();
-                                            Navigator.of(context).push(
+                                                .pause();
+                                            Navigator.of(
+                                              context,
+                                            ).pushReplacement(
                                               CupertinoPageRoute(
                                                 builder: (context) =>
                                                     SuccessScreen(
@@ -410,8 +417,6 @@ class _JobCompletedScreenState extends State<JobCompletedScreen>
                                               ),
                                             );
                                           }
-                                        : myData.isCompleted.value
-                                        ? null
                                         : () {
                                             showDialog(
                                               context: context,
@@ -439,20 +444,16 @@ class _JobCompletedScreenState extends State<JobCompletedScreen>
                                                     ),
                                                     TextButton(
                                                       onPressed: () async {
-                                                        // Add your accept logic here
                                                         var vendorId =
                                                             await dataBase
                                                                 .getUserId();
-                                                        if (!mounted)
-                                                          return; // Ensure widget is still in the tree
+                                                        if (!mounted) return;
                                                         controller.acceptOrder(
                                                           (myData.itemId ?? 0)
                                                               .toString(),
                                                           int.parse(vendorId),
                                                           myData,
                                                         );
-                                                        // controller.countDownController.start();
-
                                                         Navigator.of(
                                                           context,
                                                         ).pop();
@@ -469,32 +470,14 @@ class _JobCompletedScreenState extends State<JobCompletedScreen>
                                               },
                                             );
                                           },
-                                    child: myData.isStarted.value
-                                        ? const Text(
-                                            'Deliver',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontFamily: 'Mont',
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          )
-                                        : myData.isCompleted.value
-                                        ? const Text(
-                                            'Terminated',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontFamily: 'Mont',
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          )
-                                        : const Text(
-                                            'Accept',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontFamily: 'Mont',
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
+                                    child: Text(
+                                      accepted ? 'Deliver' : 'Accept',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontFamily: 'Mont',
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
                                   );
                           }),
                         ),
