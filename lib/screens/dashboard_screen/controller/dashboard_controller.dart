@@ -22,7 +22,7 @@ class DashboardController extends GetxController {
   final RxString selectedPeriod = 'week'.obs;
 
   static const String _baseUrl =
-      'https://jaramarket-backend.onrender.com/api/jaram';
+      'https://api.jaramarket.com.ng/api/jaram';
 
   // ─── Lifecycle ───────────────────────────────────────────────────────────────
   @override

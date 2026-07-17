@@ -23,8 +23,11 @@ class ApiClient extends GetConnect {
   Duration timeout = API_TIMEOUT_DURATION;
 
   ApiClient(this.timeout) : super(timeout: timeout);
-  var basePath = 'https://jaramarket-backend.onrender.com/api/jaram';
-  var baseUrl = 'https://jaramarket-backend.onrender.com/api/jaram';
+  
+  //var basePath = 'https://jaramarket-backend.onrender.com/api/jaram';
+  //var baseUrl = 'https://jaramarket-backend.onrender.com/api/jaram';
+  var basePath = 'https://api.jaramarket.com.ng/api/jaram';
+  var baseUrl = 'https://api.jaramarket.com.ng/api/jaram';
   static const int maxRetries = 3;
   static const Duration retryDelay = Duration(seconds: 2);
 
