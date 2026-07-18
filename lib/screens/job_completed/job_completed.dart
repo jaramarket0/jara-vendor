@@ -340,6 +340,7 @@ class _JobCompletedScreenState extends State<JobCompletedScreen> {
                               });
                             },
                             onChange: (String timeStamp) {
+                              if (!myData.isStarted.value) return;
                               int totalSecondsLeft = _parseTimeToSeconds(
                                 timeStamp,
                               );

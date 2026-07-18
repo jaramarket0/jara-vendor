@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get_connect/connect.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
+import 'package:jara_vendor/data/apiClient/auth_http_client.dart';
+import 'package:jara_vendor/routes/app_routes.dart';
 import 'package:jara_vendor/utils/snackbar_utils.dart';
 import 'package:jara_vendor/utils/storage.dart';
 import 'dart:developer' as myLog;
@@ -147,7 +149,7 @@ class ApiClient extends GetConnect {
   }
 
   Future<http.Response> verifyPin(String pin, {bool remember = false}) async {
-    return http
+    return authHttpClient
         .post(
           _uri('/pin/verify'),
           headers: await _authHeaders(),
@@ -162,7 +164,7 @@ class ApiClient extends GetConnect {
 
     final url = Uri.parse('$baseUrl/pin/verify');
     _logRequest('POST', url, body: pinData);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -181,7 +183,7 @@ class ApiClient extends GetConnect {
 
     final url = Uri.parse('$baseUrl/pin/clear');
     _logRequest('POST', url);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -234,7 +236,7 @@ class ApiClient extends GetConnect {
         await http.MultipartFile.fromPath('attachment', attachment.path),
       );
 
-      final streamedResponse = await request.send();
+      final streamedResponse = await authHttpClient.send(request);
       final response = await http.Response.fromStream(streamedResponse);
 
       _logResponse(response);
@@ -248,7 +250,7 @@ class ApiClient extends GetConnect {
         if (phone != null && phone.isNotEmpty) 'phone': phone,
       };
 
-      final response = await http.post(
+      final response = await authHttpClient.post(
         url,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -268,7 +270,7 @@ class ApiClient extends GetConnect {
     final url = Uri.parse('$baseUrl/support');
     _logRequest('GET', url);
 
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -286,7 +288,7 @@ class ApiClient extends GetConnect {
     final url = Uri.parse('$baseUrl/support/$id');
     _logRequest('GET', url);
 
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -306,7 +308,7 @@ class ApiClient extends GetConnect {
 
     final url = Uri.parse('$baseUrl/pin/validate');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Authorization': 'Bearer $token',
@@ -340,7 +342,7 @@ class ApiClient extends GetConnect {
         'Accept': 'application/json',
       };
 
-      var response = await http.post(
+      var response = await authHttpClient.post(
         headers: header,
         Uri.parse('$baseUrl/register?cache-buster=${fn_generateCacheBuster()}'),
         body: jsonEncode({
@@ -427,7 +429,7 @@ class ApiClient extends GetConnect {
     final token = await dataBase.getToken();
     final url = Uri.parse('$baseUrl/api/notifications/token');
     _logRequest('POST', url, body: replyData);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -457,7 +459,7 @@ class ApiClient extends GetConnect {
         // if (photoUrl != null) 'photo_url': photoUrl,
       },
     );
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -475,7 +477,7 @@ class ApiClient extends GetConnect {
   }
 
   Future<http.Response> setPin(String pin, String confirmPin) async {
-    return http
+    return authHttpClient
         .post(
           _uri('/pin/set'),
           headers: await _authHeaders(),
@@ -487,7 +489,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> resendOtp(Map<String, dynamic> customerData) async {
     final url = Uri.parse('$basePath/resend-otp');
     _logRequest('POST', url, body: customerData);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -504,7 +506,7 @@ class ApiClient extends GetConnect {
   ) async {
     final url = Uri.parse('$baseUrl/forgot-password');
     _logRequest('POST', url, body: customerData);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -517,7 +519,7 @@ class ApiClient extends GetConnect {
   }
 
   Future<http.Response> requestPinReset() async {
-    return http
+    return authHttpClient
         .post(_uri('/pin/request-reset'), headers: await _authHeaders())
         .timeout(timeout);
   }
@@ -527,7 +529,7 @@ class ApiClient extends GetConnect {
     String pin,
     String confirmPin,
   ) async {
-    return http
+    return authHttpClient
         .post(
           _uri('/pin/reset'),
           headers: await _authHeaders(),
@@ -541,7 +543,7 @@ class ApiClient extends GetConnect {
   }
 
   Future<http.Response> fetchBanks({String? search}) async {
-    return http
+    return authHttpClient
         .get(
           _uri('/banks', search != null ? {'search': search} : null),
           headers: await _authHeaders(),
@@ -552,7 +554,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> resetPassword(Map<String, dynamic> customerData) async {
     final url = Uri.parse('$baseUrl/reset-password');
     _logRequest('POST', url, body: customerData);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -580,7 +582,7 @@ class ApiClient extends GetConnect {
   }
 
   Future<http.Response> transferToBank(Map<String, dynamic> data) async {
-    return http
+    return authHttpClient
         .post(
           _uri('/wallet/transfer-to-bank'),
           headers: await _authHeaders(),
@@ -595,7 +597,7 @@ class ApiClient extends GetConnect {
     final token = prefs.getString('token') ?? '';
     final url = Uri.parse('$baseUrl/country');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -611,7 +613,7 @@ class ApiClient extends GetConnect {
     var email = await dataBase.getEmail();
     final url = Uri.parse('$baseUrl/vendors/categories');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -629,7 +631,7 @@ class ApiClient extends GetConnect {
     final url = Uri.parse('$baseUrl/update-vendor-categories/$email');
     _logRequest('POST', url);
     Map<String, dynamic> body = {"category_ids": category_ids};
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Accept': 'application/json',
@@ -647,7 +649,7 @@ class ApiClient extends GetConnect {
     final token = prefs.getString('token') ?? '';
     final url = Uri.parse('$baseUrl/payments');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json',
@@ -663,7 +665,7 @@ class ApiClient extends GetConnect {
     var token = await dataBase.getToken();
     final url = Uri.parse('$baseUrl/my-referrals');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -681,7 +683,7 @@ class ApiClient extends GetConnect {
     final token = prefs.getString('token') ?? '';
     final url = Uri.parse('$baseUrl/payments/$id');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json',
@@ -699,7 +701,7 @@ class ApiClient extends GetConnect {
     final token = prefs.getString('token') ?? '';
     final url = Uri.parse('$baseUrl/fetch-wallet');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -717,7 +719,7 @@ class ApiClient extends GetConnect {
     final token = prefs.getString('token') ?? '';
     final url = Uri.parse('$baseUrl/states');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -735,7 +737,7 @@ class ApiClient extends GetConnect {
     final token = prefs.getString('token') ?? '';
     final url = Uri.parse('$baseUrl/lgas?state=$name');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -755,7 +757,7 @@ class ApiClient extends GetConnect {
     final token = prefs.getString('token') ?? '';
     final url = Uri.parse('$baseUrl/addresses/1');
     _logRequest('PUT', url, body: addressData);
-    final response = await http.put(
+    final response = await authHttpClient.put(
       url,
       body: jsonEncode(addressData),
       headers: <String, String>{
@@ -776,7 +778,7 @@ class ApiClient extends GetConnect {
     final token = prefs.getString('token') ?? '';
     final url = Uri.parse('$baseUrl/addresses');
     _logRequest('POST', url, body: addressData);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       body: jsonEncode(addressData),
       headers: <String, String>{
@@ -795,7 +797,7 @@ class ApiClient extends GetConnect {
     final token = prefs.getString('token') ?? '';
     final url = Uri.parse('$baseUrl/addresses');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -813,7 +815,7 @@ class ApiClient extends GetConnect {
   ) async {
     final url = Uri.parse('$baseUrl/validate-otp');
     _logRequest('POST', url, body: otpData);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -830,10 +832,10 @@ class ApiClient extends GetConnect {
     Map<String, dynamic> otpData,
   ) async {
     final url = Uri.parse(
-      'https://jaramarket-backend.onrender.com/api/jaram/validate-email',
+      'https://api.jaramarket.com.ng/api/jaram/validate-email',
     );
     _logRequest('POST', url, body: otpData);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -849,7 +851,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> login(Map<String, dynamic> loginData) async {
     final url = Uri.parse('$baseUrl/login');
     _logRequest('POST', url, body: loginData);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -866,7 +868,7 @@ class ApiClient extends GetConnect {
   ) async {
     final url = Uri.parse('$baseUrl/validate-otp');
     _logRequest('POST', url, body: otpData);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1080,7 +1082,7 @@ class ApiClient extends GetConnect {
     final token = prefs.getString('token') ?? '';
     final url = Uri.parse('$baseUrl/orders');
     _logRequest('POST', url, body: orderData);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       // body: jsonEncode(orderData),
       headers: <String, String>{
@@ -1098,7 +1100,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> fetchUserProfile(String email) async {
     final url = Uri.parse('$baseUrl/fetchUserProfile/$email');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1115,7 +1117,7 @@ class ApiClient extends GetConnect {
   ) async {
     final url = Uri.parse('$baseUrl/edit-user-profile/$email');
     _logRequest('POST', url, body: profileData);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1134,7 +1136,7 @@ class ApiClient extends GetConnect {
     //  final token = await dataBase.getToken();  //prefs.getString('token');
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token') ?? '';
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1149,7 +1151,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> postOrder(Map<String, dynamic> orderData) async {
     final url = Uri.parse('$baseUrl/orders');
     _logRequest('POST', url, body: orderData);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1164,7 +1166,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> getOrders() async {
     final url = Uri.parse('$baseUrl/orders');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1178,7 +1180,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> cancelOrder(String orderId) async {
     final url = Uri.parse('$baseUrl/orders/$orderId/cancel');
     _logRequest('POST', url);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1194,7 +1196,7 @@ class ApiClient extends GetConnect {
     _logRequest('GET', url);
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1209,7 +1211,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> getOrder(String orderId) async {
     final url = Uri.parse('$baseUrl/orders/$orderId');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1226,7 +1228,7 @@ class ApiClient extends GetConnect {
   ) async {
     final url = Uri.parse('$baseUrl/orders/$orderId');
     _logRequest('PUT', url, body: orderData);
-    final response = await http.put(
+    final response = await authHttpClient.put(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1241,7 +1243,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> deleteOrder(String orderId) async {
     final url = Uri.parse('$baseUrl/orders/$orderId');
     _logRequest('DELETE', url);
-    final response = await http.delete(
+    final response = await authHttpClient.delete(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1255,7 +1257,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> getOrderReceipt(String orderId) async {
     final url = Uri.parse('$baseUrl/orders/$orderId/receipt');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1269,7 +1271,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> trackOrder(String orderId) async {
     final url = Uri.parse('$baseUrl/orders/$orderId/track');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1283,7 +1285,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> getUserOrders(String userId) async {
     final url = Uri.parse('$baseUrl/users/$userId/orders');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1297,7 +1299,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> createPayment(Map<String, dynamic> paymentData) async {
     final url = Uri.parse('$baseUrl/payments');
     _logRequest('POST', url, body: paymentData);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1312,7 +1314,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> getPayments() async {
     final url = Uri.parse('$baseUrl/payments');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1328,7 +1330,7 @@ class ApiClient extends GetConnect {
   ) async {
     final url = Uri.parse('$baseUrl/payments/callback');
     _logRequest('GET', url); // Assuming GET, adjust if needed
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url, // Assuming query parameters are handled elsewhere or not needed for logging body
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1342,7 +1344,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> fundWallet(Map<String, dynamic> fundData) async {
     final url = Uri.parse('$baseUrl/wallets/fund');
     _logRequest('POST', url, body: fundData);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1357,7 +1359,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> getFranchises() async {
     final url = Uri.parse('$baseUrl/franchises');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1371,7 +1373,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> getUsers() async {
     final url = Uri.parse('$baseUrl/users');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1388,7 +1390,7 @@ class ApiClient extends GetConnect {
   ) async {
     final url = Uri.parse('$baseUrl/users/$userId');
     _logRequest('PUT', url, body: userData);
-    final response = await http.put(
+    final response = await authHttpClient.put(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1403,7 +1405,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> deleteUser(String userId) async {
     final url = Uri.parse('$baseUrl/users/$userId');
     _logRequest('DELETE', url);
-    final response = await http.delete(
+    final response = await authHttpClient.delete(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1417,7 +1419,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> toggleUserStatus(String userId) async {
     final url = Uri.parse('$baseUrl/users/$userId/toggle-status');
     _logRequest('PATCH', url); // Assuming PATCH, adjust if needed
-    final response = await http.patch(
+    final response = await authHttpClient.patch(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1432,7 +1434,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> getSettings() async {
     final url = Uri.parse('$baseUrl/settings');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1452,7 +1454,7 @@ class ApiClient extends GetConnect {
       url,
       body: settingsData,
     ); // Assuming POST for create/update
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1467,7 +1469,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> getCategories() async {
     final url = Uri.parse('$baseUrl/categories');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1483,7 +1485,7 @@ class ApiClient extends GetConnect {
   ) async {
     final url = Uri.parse('$baseUrl/categories');
     _logRequest('POST', url, body: categoryData);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1501,7 +1503,7 @@ class ApiClient extends GetConnect {
   ) async {
     final url = Uri.parse('$baseUrl/categories/$categoryId');
     _logRequest('PUT', url, body: categoryData);
-    final response = await http.put(
+    final response = await authHttpClient.put(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1516,7 +1518,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> deleteCategory(String categoryId) async {
     final url = Uri.parse('$baseUrl/categories/$categoryId');
     _logRequest('DELETE', url);
-    final response = await http.delete(
+    final response = await authHttpClient.delete(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1530,7 +1532,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> createFood(Map<String, dynamic> foodData) async {
     final url = Uri.parse('$baseUrl/foods');
     _logRequest('POST', url, body: foodData);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1545,7 +1547,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> getOrderReports() async {
     final url = Uri.parse('$baseUrl/reports/orders');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1559,7 +1561,7 @@ class ApiClient extends GetConnect {
   Future<http.Response> getPaymentReports() async {
     final url = Uri.parse('$baseUrl/reports/payments');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1576,7 +1578,7 @@ class ApiClient extends GetConnect {
 
     final url = Uri.parse('$baseUrl/favorites');
     _logRequest('GET', url);
-    final response = await http.get(
+    final response = await authHttpClient.get(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1594,7 +1596,7 @@ class ApiClient extends GetConnect {
 
     final url = Uri.parse('$baseUrl/favorites');
     _logRequest('POST', url);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1613,7 +1615,7 @@ class ApiClient extends GetConnect {
 
     final url = Uri.parse('$baseUrl/favorites/$favoriteId');
     _logRequest('DELETE', url);
-    final response = await http.delete(
+    final response = await authHttpClient.delete(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1632,7 +1634,7 @@ class ApiClient extends GetConnect {
 
     final url = Uri.parse('$baseUrl/logout');
     _logRequest('POST', url);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -1649,7 +1651,7 @@ class ApiClient extends GetConnect {
 
     final url = Uri.parse('$baseUrl/payments/initialize-transaction');
     _logRequest('POST', url);
-    final response = await http.post(
+    final response = await authHttpClient.post(
       url,
       body: jsonEncode(checkoutData),
       headers: <String, String>{
@@ -1667,7 +1669,7 @@ class ApiClient extends GetConnect {
 
   //   final url = Uri.parse('$baseUrl/payments/initialize-transaction');
   //   _logRequest('POST', url);
-  //   final response = await http.post(
+  //   final response = await authHttpClient.post(
   //     url,
   //     body: jsonEncode(checkoutData),
   //     headers: <String, String>{
@@ -1681,3 +1683,13 @@ class ApiClient extends GetConnect {
 }
 
 ApiClient apiClient = ApiClient(API_TIMEOUT_DURATION);
+
+final AuthHttpClient authHttpClient = AuthHttpClient(
+  onUnauthenticated: () async {
+    await dataBase.clearAuthSession();
+    if (Get.currentRoute != AppRoutes.login) {
+      Get.offAllNamed(AppRoutes.login);
+      Get.snackbar('Session expired', 'Please log in again to continue.');
+    }
+  },
+);

@@ -245,18 +245,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     authController.loginWithGoogle();
                   },
                 ),
-                const SizedBox(height: 16),
-                _buildSocialButton(
-                  'Continue with Apple',
-                  'assets/apple_logo.png',
-                  () {},
-                ),
-                const SizedBox(height: 16),
-                _buildSocialButton(
-                  'Continue with facebook',
-                  'assets/facebook_logo.png',
-                  () {},
-                ),
                 const SizedBox(height: 24),
                 Center(
                   child: TextButton(

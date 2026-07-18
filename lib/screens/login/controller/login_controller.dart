@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:jara_vendor/screens/login/models/models.dart';
+import 'package:jara_vendor/screens/otp_verification/otp_verification.dart';
 
 import 'package:jara_vendor/utils/storage.dart';
 import 'package:overlay_kit/overlay_kit.dart';
@@ -78,6 +79,29 @@ class LoginController extends GetxController {
         Get.offAllNamed('/dashboard');
       } else {
         OverlayLoadingProgress.stop();
+        final decoded = jsonDecode(response.body);
+        final errorDetail =
+            (decoded['errors'] ?? decoded['message'] ?? '').toString();
+
+        if (errorDetail.toLowerCase().contains('verify your email')) {
+          final email = emailController.text;
+          await _apiService.resendOtp({'email': email});
+          ScaffoldMessenger.of(Get.context!).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  'Your account is not verified yet. We\'ve sent you a new code.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+          Navigator.push(
+            Get.context!,
+            MaterialPageRoute(
+              builder: (context) => OtpVerificationScreen(email: email),
+            ),
+          );
+          return;
+        }
+
         ScaffoldMessenger.of(Get.context!).showSnackBar(
           SnackBar(
             content: Text('Login failed: ${response.body}'),

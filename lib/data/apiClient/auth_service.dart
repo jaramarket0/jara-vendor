@@ -46,6 +46,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:developer' as myLog;
@@ -55,6 +56,14 @@ import 'package:jara_vendor/utils/storage.dart';
 
 
 ApiClient apiClient = ApiClient(Duration(seconds: 60 * 5)); // Replace with your actual API client instance
+
+// The "Web client" OAuth client ID from Google Cloud Console (client_type 3
+// in google-services.json). google_sign_in v7 needs this passed explicitly
+// on Android to return a usable idToken — without it, idToken comes back
+// null and the backend never receives anything to verify.
+const _googleServerClientId =
+    '915451905241-s4d5m4bqg764u142n9biopk0rl6ats8j.apps.googleusercontent.com';
+
 class AuthController extends GetxController {
   // Observables for UI state management
   var isLoading = false.obs;
@@ -72,13 +81,25 @@ class AuthController extends GetxController {
     super.onInit();
     _checkLoginStatus();
     initGoogleSignIn();
+    ever(errorMessage, (String value) {
+      if (value.isNotEmpty) {
+        Get.snackbar(
+          'Google Sign-In',
+          value,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    });
   }
 
   /// Ensures Google Sign-In is configured with native options
   Future<void> initGoogleSignIn() async {
     if (_googleSignInInitialized) return;
     try {
-      await GoogleSignIn.instance.initialize();
+      await GoogleSignIn.instance.initialize(
+        serverClientId: _googleServerClientId,
+      );
       _googleSignInInitialized = true;
     } catch (e) {
       myLog.log("Failed to initialize Google Sign-In: $e");

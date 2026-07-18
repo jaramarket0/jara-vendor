@@ -297,18 +297,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                     authController.loginWithGoogle();
                   },
                 ),
-                const SizedBox(height: 16),
-                _buildSocialButton(
-                  'Continue with Apple',
-                  'assets/apple_logo.png',
-                  () {},
-                ),
-                const SizedBox(height: 16),
-                _buildSocialButton(
-                  'Continue with facebook',
-                  'assets/facebook_logo.png',
-                  () {},
-                ),
                 const SizedBox(height: 24),
                 Center(
                   child: TextButton(
