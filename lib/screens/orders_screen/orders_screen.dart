@@ -557,13 +557,8 @@ class _OrdersScreenState extends State<OrdersScreen>
                       children: [
                         (dataHistory.status ?? '').toLowerCase() == 'processing'
                             ? SvgPicture.asset('assets/processing.svg')
-                            : (dataHistory.status ?? '').toLowerCase() ==
-                                'pending'
-                            ? SvgPicture.asset('assets/rejected.svg')
                             : SvgPicture.asset('assets/completed.svg'),
-                        (dataHistory.status ?? '').toLowerCase() == 'pending'
-                            ? const Text('rejected')
-                            : Text(dataHistory.status ?? ''),
+                        Text(dataHistory.status ?? ''),
                       ],
                     ),
                   ],

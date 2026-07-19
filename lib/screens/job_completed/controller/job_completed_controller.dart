@@ -28,7 +28,7 @@ class JobCompletedController extends GetxController {
         myData.isAccepted.value = true;
         //isAccepted.value = true;
         countDownController.start();
-        //controller.fetchOrders();
+        controller.fetchOrders();
         controller.fetchAcceptedOrders();
         Get.snackbar(
           'Success',
@@ -76,5 +76,43 @@ class JobCompletedController extends GetxController {
     }
   }
 
-  Future<void> deliverOrder() async {}
+  Future<bool> deliverOrder(String itemId) async {
+    OverlayLoadingProgress.start(circularProgressColor: Colors.amber);
+
+    try {
+      var response = await apiClient.deliverOrder(itemId);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        OverlayLoadingProgress.stop();
+        controller.fetchAcceptedOrders();
+        Get.snackbar(
+          'Success',
+          jsonDecode(response.body)['message'] ?? 'Sucess',
+          colorText: Colors.white,
+          backgroundColor: Colors.green,
+        );
+        return true;
+      } else {
+        OverlayLoadingProgress.stop();
+        Get.snackbar(
+          'Error',
+          jsonDecode(response.body)['message'] ?? 'Could not mark as delivered',
+          colorText: Colors.white,
+          backgroundColor: Colors.red,
+        );
+        return false;
+      }
+    } catch (e) {
+      OverlayLoadingProgress.stop();
+      myLog.log(e.toString());
+      Get.snackbar(
+        'Error',
+        e.toString(),
+        colorText: Colors.white,
+        backgroundColor: Colors.red,
+      );
+      return false;
+    } finally {
+      OverlayLoadingProgress.stop();
+    }
+  }
 }

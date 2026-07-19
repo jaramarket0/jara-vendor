@@ -404,7 +404,13 @@ class _JobCompletedScreenState extends State<JobCompletedScreen> {
                                           const Color(0xffE83C00),
                                     ),
                                     onPressed: accepted
-                                        ? () {
+                                        ? () async {
+                                            final delivered = await controller
+                                                .deliverOrder(
+                                                  (myData.itemId ?? 0)
+                                                      .toString(),
+                                                );
+                                            if (!delivered || !mounted) return;
                                             controller.countDownController
                                                 .pause();
                                             Navigator.of(
