@@ -449,18 +449,39 @@ class _WalletCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Wallet balance',
-                  style: TextStyle(fontSize: 12, color: Color(0x80FFFFFF)),
+                Row(
+                  children: [
+                    const Text(
+                      'Wallet balance',
+                      style: TextStyle(fontSize: 12, color: Color(0x80FFFFFF)),
+                    ),
+                    const SizedBox(width: 6),
+                    GestureDetector(
+                      onTap: controller.toggleBalanceVisibility,
+                      child: Obx(
+                        () => Icon(
+                          controller.balanceHidden.value
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          size: 16,
+                          color: const Color(0x80FFFFFF),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 6),
-                Text(
-                  '₦ ${fmt.format(data?.walletBalance ?? 0)}',
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    letterSpacing: -0.5,
+                Obx(
+                  () => Text(
+                    controller.balanceHidden.value
+                        ? '₦ ••••••'
+                        : '₦ ${fmt.format(data?.walletBalance ?? 0)}',
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      letterSpacing: -0.5,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),

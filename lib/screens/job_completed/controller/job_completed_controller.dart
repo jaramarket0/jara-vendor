@@ -16,7 +16,7 @@ class JobCompletedController extends GetxController {
   OrdersController controller = Get.find<OrdersController>();
   ApiClient apiClient = ApiClient(const Duration(seconds: 60 * 5));
   final CountDownController countDownController = CountDownController();
-  RxInt remainingSeconds = 100.obs;
+  RxInt remainingSeconds = (20 * 60).obs; // 20-minute delivery window
 
   Future<void> acceptOrder(String itemId, int vendorId, Data myData) async {
     OverlayLoadingProgress.start(circularProgressColor: Colors.amber);

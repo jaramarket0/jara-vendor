@@ -132,6 +132,191 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   }
 }
 
+// ─── FCM foreground message handler (must be top-level) ─────────────────────
+
+void _handleForegroundMessage(RemoteMessage message) {
+  myLog.log('Received a foreground message!');
+  myLog.log('Message data: ${message.data}');
+
+  if (message.notification != null) {
+    myLog.log('Notification: ${message.notification}');
+
+    final notification = message.notification!;
+    final android = message.notification?.android;
+
+    if (android != null && !kIsWeb) {
+      final isOrder = ['new_order', 'order_status', 'order_item_status']
+          .contains(message.data['type']);
+      flutterLocalNotificationsPlugin.show(
+        id: notification.hashCode,
+        title: notification.title,
+        body: notification.body,
+        notificationDetails: NotificationDetails(
+          android: isOrder
+              ? const AndroidNotificationDetails(
+                  'order_channel',
+                  'Order Notifications',
+                  channelDescription: 'Sounds for new and updated orders.',
+                  importance: Importance.max,
+                  priority: Priority.max,
+                  sound: RawResourceAndroidNotificationSound('order_alert'),
+                  playSound: true,
+                  enableVibration: true,
+                  ticker: 'ticker',
+                )
+              : const AndroidNotificationDetails(
+                  'high_importance_channel',
+                  'High Importance Notifications',
+                  channelDescription:
+                      'This channel is used for important notifications.',
+                  importance: Importance.max,
+                  priority: Priority.high,
+                  playSound: true,
+                  enableVibration: true,
+                  ticker: 'ticker',
+                ),
+        ),
+      );
+    }
+  }
+}
+
+// ─── Local notifications init (fast, in-process — must run before runApp) ───
+
+Future<void> _initLocalNotifications() async {
+  final List<DarwinNotificationCategory> darwinNotificationCategories = [
+    DarwinNotificationCategory(
+      darwinNotificationCategoryText,
+      actions: [
+        DarwinNotificationAction.text(
+          'text_1',
+          'Action 1',
+          buttonTitle: 'Send',
+          placeholder: 'Placeholder',
+        ),
+      ],
+    ),
+    DarwinNotificationCategory(
+      darwinNotificationCategoryPlain,
+      actions: [
+        DarwinNotificationAction.plain('id_1', 'Action 1'),
+        DarwinNotificationAction.plain(
+          'id_2',
+          'Action 2 (destructive)',
+          options: {DarwinNotificationActionOption.destructive},
+        ),
+        DarwinNotificationAction.plain(
+          navigationActionId,
+          'Action 3 (foreground)',
+          options: {DarwinNotificationActionOption.foreground},
+        ),
+        DarwinNotificationAction.plain(
+          'id_4',
+          'Action 4 (auth required)',
+          options: {DarwinNotificationActionOption.authenticationRequired},
+        ),
+      ],
+      options: {DarwinNotificationCategoryOption.hiddenPreviewShowTitle},
+    ),
+  ];
+
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+
+  final DarwinInitializationSettings initializationSettingsIOS =
+      DarwinInitializationSettings(
+        requestAlertPermission: false,
+        requestBadgePermission: false,
+        requestSoundPermission: false,
+        notificationCategories: darwinNotificationCategories,
+      );
+
+  final DarwinInitializationSettings initializationSettingsMacOS =
+      DarwinInitializationSettings(
+        requestAlertPermission: false,
+        requestBadgePermission: false,
+        requestSoundPermission: false,
+        notificationCategories: darwinNotificationCategories,
+      );
+
+  final LinuxInitializationSettings initializationSettingsLinux =
+      LinuxInitializationSettings(
+        defaultActionName: 'Open notification',
+        defaultIcon: AssetsLinuxIcon('icons/app_icon.png'),
+      );
+
+  final InitializationSettings initializationSettings =
+      InitializationSettings(
+        android: initializationSettingsAndroid,
+        iOS: initializationSettingsIOS,
+        macOS: initializationSettingsMacOS,
+        linux: initializationSettingsLinux,
+      );
+
+  await flutterLocalNotificationsPlugin.initialize(
+    settings: initializationSettings,
+    onDidReceiveNotificationResponse: selectNotificationStream.add,
+    onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+  );
+}
+
+// ─── FCM background setup (runs after runApp, never blocks UI) ───────────────
+
+Future<void> _setupFcmInBackground(SendTokenService sendTokenService) async {
+  try {
+    final fcm = FirebaseMessaging.instance;
+
+    final RemoteMessage? initialMessage = await FirebaseMessaging.instance
+        .getInitialMessage();
+    if (initialMessage != null) {
+      myLog.log(
+        'App launched from terminated state: ${initialMessage.messageId}',
+      );
+    }
+
+    FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      myLog.log('Message clicked!: $message');
+    });
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+      myLog.log('FCM Token refreshed: $newToken');
+      sendTokenService.registerToken(newToken, null, null);
+    });
+
+    // Request permission — shows iOS dialog, then fetch token.
+    // Both are network calls that can be slow; they must never block runApp().
+    final NotificationSettings notificationSettings = await fcm
+        .requestPermission(alert: true, badge: true, sound: true);
+
+    if (notificationSettings.authorizationStatus ==
+            AuthorizationStatus.authorized ||
+        notificationSettings.authorizationStatus ==
+            AuthorizationStatus.provisional) {
+      myLog.log(
+        'Notification permission: ${notificationSettings.authorizationStatus}',
+      );
+      String? fcmToken;
+      if (!kIsWeb && Platform.isIOS && await fcm.getAPNSToken() == null) {
+        myLog.log(
+          'APNS token is not set yet (expected on iOS Simulator or if remote notification registration is pending). Skipping initial FCM token fetch.',
+        );
+      } else {
+        fcmToken = await fcm
+            .getToken()
+            .timeout(const Duration(seconds: 20), onTimeout: () => null);
+      }
+      if (fcmToken != null) {
+        myLog.log('FCM Token: $fcmToken');
+        sendTokenService.registerToken(fcmToken, null, null);
+      }
+    } else {
+      myLog.log('Notification permission denied');
+    }
+  } catch (e) {
+    myLog.log('Notification/FCM setup error: $e');
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -153,171 +338,14 @@ void main() async {
     ),
   );
 
-  // ── Notifications & FCM ──────────────────────────────────────────────────
-
+  // Local notifications plugin init (fast, in-process — needed before any show())
   try {
-    final RemoteMessage? initialMessage = await FirebaseMessaging.instance
-        .getInitialMessage();
-    if (initialMessage != null) {
-      myLog.log(
-        'App launched from terminated state: ${initialMessage.messageId}',
-      );
-    }
-
-    final SendTokenService sendTokenService = Get.put(SendTokenService());
-    final fcm = FirebaseMessaging.instance;
-
-    final List<DarwinNotificationCategory> darwinNotificationCategories = [
-      DarwinNotificationCategory(
-        darwinNotificationCategoryText,
-        actions: [
-          DarwinNotificationAction.text(
-            'text_1',
-            'Action 1',
-            buttonTitle: 'Send',
-            placeholder: 'Placeholder',
-          ),
-        ],
-      ),
-      DarwinNotificationCategory(
-        darwinNotificationCategoryPlain,
-        actions: [
-          DarwinNotificationAction.plain('id_1', 'Action 1'),
-          DarwinNotificationAction.plain(
-            'id_2',
-            'Action 2 (destructive)',
-            options: {DarwinNotificationActionOption.destructive},
-          ),
-          DarwinNotificationAction.plain(
-            navigationActionId,
-            'Action 3 (foreground)',
-            options: {DarwinNotificationActionOption.foreground},
-          ),
-          DarwinNotificationAction.plain(
-            'id_4',
-            'Action 4 (auth required)',
-            options: {DarwinNotificationActionOption.authenticationRequired},
-          ),
-        ],
-        options: {DarwinNotificationCategoryOption.hiddenPreviewShowTitle},
-      ),
-    ];
-
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    final DarwinInitializationSettings initializationSettingsIOS =
-        DarwinInitializationSettings(
-          requestAlertPermission: false,
-          requestBadgePermission: false,
-          requestSoundPermission: false,
-          notificationCategories: darwinNotificationCategories,
-        );
-
-    final DarwinInitializationSettings initializationSettingsMacOS =
-        DarwinInitializationSettings(
-          requestAlertPermission: false,
-          requestBadgePermission: false,
-          requestSoundPermission: false,
-          notificationCategories: darwinNotificationCategories,
-        );
-
-    final LinuxInitializationSettings initializationSettingsLinux =
-        LinuxInitializationSettings(
-          defaultActionName: 'Open notification',
-          defaultIcon: AssetsLinuxIcon('icons/app_icon.png'),
-        );
-
-    final InitializationSettings initializationSettings =
-        InitializationSettings(
-          android: initializationSettingsAndroid,
-          iOS: initializationSettingsIOS,
-          macOS: initializationSettingsMacOS,
-          linux: initializationSettingsLinux,
-        );
-
-    await flutterLocalNotificationsPlugin.initialize(
-      settings: initializationSettings,
-      onDidReceiveNotificationResponse: selectNotificationStream.add,
-      onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
-    );
-
-    final NotificationSettings notificationSettings = await fcm
-        .requestPermission(alert: true, badge: true, sound: true);
-
-    if (notificationSettings.authorizationStatus ==
-        AuthorizationStatus.authorized) {
-      myLog.log('User granted permission');
-      final fcmToken = await fcm.getToken();
-      if (fcmToken != null) {
-        myLog.log('FCM Token: $fcmToken');
-        sendTokenService.registerToken(fcmToken, null, null);
-      }
-    } else if (notificationSettings.authorizationStatus ==
-        AuthorizationStatus.provisional) {
-      myLog.log('User granted provisional permission');
-    } else {
-      myLog.log('User declined or has not accepted permission');
-    }
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      myLog.log('Received a foreground message!');
-      myLog.log('Message data: ${message.data}');
-
-      if (message.notification != null) {
-        myLog.log('Notification: ${message.notification}');
-
-        final notification = message.notification!;
-        final android = message.notification?.android;
-
-        if (android != null && !kIsWeb) {
-          final isOrder = ['new_order', 'order_status', 'order_item_status']
-              .contains(message.data['type']);
-          flutterLocalNotificationsPlugin.show(
-            id: notification.hashCode,
-            title: notification.title,
-            body: notification.body,
-            notificationDetails: NotificationDetails(
-              android: isOrder
-                  ? const AndroidNotificationDetails(
-                      'order_channel',
-                      'Order Notifications',
-                      channelDescription: 'Sounds for new and updated orders.',
-                      importance: Importance.max,
-                      priority: Priority.max,
-                      sound: RawResourceAndroidNotificationSound('order_alert'),
-                      playSound: true,
-                      enableVibration: true,
-                      ticker: 'ticker',
-                    )
-                  : const AndroidNotificationDetails(
-                      'high_importance_channel',
-                      'High Importance Notifications',
-                      channelDescription:
-                          'This channel is used for important notifications.',
-                      importance: Importance.max,
-                      priority: Priority.high,
-                      playSound: true,
-                      enableVibration: true,
-                      ticker: 'ticker',
-                    ),
-            ),
-          );
-        }
-      }
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      myLog.log('Message clicked!: $message');
-    });
-
-    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
-      myLog.log('FCM Token refreshed: $newToken');
-      sendTokenService.registerToken(newToken, null, null);
-    });
+    await _initLocalNotifications();
   } catch (e) {
-    myLog.log('Notification/FCM setup error: $e');
+    myLog.log('Local notifications init error: $e');
   }
+
+  final SendTokenService sendTokenService = Get.put(SendTokenService());
 
   // ── Desktop SQLite init ──────────────────────────────────────────────────
 
@@ -372,6 +400,10 @@ void main() async {
     myLog.log('Uncaught error: $error\n$stack');
     showError(error);
   });
+
+  // FCM permission + token run in the background after runApp fires.
+  // They must never block runApp — they make network/dialog calls that can hang.
+  unawaited(_setupFcmInBackground(sendTokenService));
 }
 
 class MyApp extends StatelessWidget {

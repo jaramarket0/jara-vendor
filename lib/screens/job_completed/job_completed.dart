@@ -23,6 +23,7 @@ class JobCompletedScreen extends StatefulWidget {
 
 class _JobCompletedScreenState extends State<JobCompletedScreen> {
   final AudioPlayer _tickPlayer = AudioPlayer();
+  int? _lastTickSecond;
 
   @override
   void dispose() {
@@ -344,6 +345,14 @@ class _JobCompletedScreenState extends State<JobCompletedScreen> {
                               int totalSecondsLeft = _parseTimeToSeconds(
                                 timeStamp,
                               );
+                              // onChange fires on every animation frame
+                              // (~60/sec), not once per second -- without this
+                              // guard the tick sound is re-triggered dozens of
+                              // times a second, which is what caused the
+                              // overlapping/inconsistent beeping and the UI
+                              // jank that looked like a hang.
+                              if (_lastTickSecond == totalSecondsLeft) return;
+                              _lastTickSecond = totalSecondsLeft;
                               _tickPlayer.play(
                                 AssetSource('timer_tick.wav'),
                                 volume: 0.6,

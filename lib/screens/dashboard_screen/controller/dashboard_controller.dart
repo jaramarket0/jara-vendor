@@ -17,6 +17,9 @@ class DashboardController extends GetxController {
   final Rx<DashboardModel?> dashboardData = Rx<DashboardModel?>(null);
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
+  final RxBool balanceHidden = false.obs;
+
+  void toggleBalanceVisibility() => balanceHidden.value = !balanceHidden.value;
 
   /// 'day' | 'week' | 'month'  (default per API docs: week)
   final RxString selectedPeriod = 'week'.obs;
