@@ -205,6 +205,23 @@ class DataBase extends GetxController {
     return true;
   }
 
+  saveMarketName(String marketName) async {
+    SharedPreferences sharedPreferences = await _pref;
+    await sharedPreferences.setString('marketName', marketName);
+
+    return true;
+  }
+
+  Future<String> getMarketName() async {
+    SharedPreferences sharedPreferences = await _pref;
+
+    if (sharedPreferences.containsKey('marketName')) {
+      return sharedPreferences.getString('marketName')!;
+    } else {
+      return '';
+    }
+  }
+
   saveSeeen(String isSeeen) async {
     SharedPreferences sharedPreferences = await _pref;
     await sharedPreferences.setString('isSeeen', isSeeen);

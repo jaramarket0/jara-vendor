@@ -28,6 +28,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
   String phoneNumber = '';
   String email = '';
   String businessAddress = '';
+  String marketName = '';
   String paymentMethod = '';
 
   setValue() async {
@@ -36,6 +37,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
     var email1 = await dataBase.getEmail();
     var phoneNumber1 = await dataBase.getPhone();
     var address1 = await dataBase.getAddress();
+    var marketName1 = await dataBase.getMarketName();
     var category1 = await dataBase.loadSelectedProducts();
     var paymentMethod1 = await dataBase.getPaymentMethod() ?? 'Online';
     setState(() {
@@ -44,6 +46,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
       category = category1;
       phoneNumber = phoneNumber1;
       businessAddress = address1;
+      marketName = marketName1;
       paymentMethod = paymentMethod1;
       email = email1;
     });
@@ -163,6 +166,8 @@ class _SummaryScreenState extends State<SummaryScreen> {
           'Address',
           businessAddress.isNotEmpty ? businessAddress : 'N/A',
         ),
+        const SizedBox(height: 16),
+        _buildInfoRow('Market', marketName.isNotEmpty ? marketName : 'N/A'),
         const SizedBox(height: 16),
         _buildInfoRow('Website', email.isNotEmpty ? email : 'N/A'),
       ],

@@ -731,6 +731,23 @@ class ApiClient extends GetConnect {
     return response;
   }
 
+  Future<http.Response> fetchMarkets() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+    final url = Uri.parse('$baseUrl/markets');
+    _logRequest('GET', url);
+    final response = await authHttpClient.get(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    _logResponse(response);
+    return response;
+  }
+
   Future<http.Response> fetchLgas(String name) async {
     // var token = await dataBase.getToken();
     final prefs = await SharedPreferences.getInstance();

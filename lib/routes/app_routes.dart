@@ -30,6 +30,8 @@ import 'package:jara_vendor/screens/login/bindings/login_bindings.dart';
 import 'package:jara_vendor/screens/login/login.dart';
 import 'package:jara_vendor/screens/market_list/bindings/market_list_bindings.dart';
 import 'package:jara_vendor/screens/market_list/market_list.dart';
+import 'package:jara_vendor/screens/market_screen/bindings/market_bindings.dart';
+import 'package:jara_vendor/screens/market_screen/market_screen.dart';
 import 'package:jara_vendor/screens/onboarding_screen/bindings/onboarding_bindings.dart';
 import 'package:jara_vendor/screens/onboarding_screen/onboarding_screen.dart';
 import 'package:jara_vendor/screens/order_history/bindings/order_history_bindings.dart';
@@ -65,6 +67,7 @@ class AppRoutes {
   static const String shopSize = '/shop-size';
   static const faqScreen = '/faq_screen';
   static const String address = '/address';
+  static const String marketSelection = '/market-selection';
   static const String paymentMethod = '/payment-method';
   static const String summary = '/summary';
   static const String dashboard = '/dashboard';
@@ -154,6 +157,11 @@ class AppRoutes {
         // Add any necessary bindings here
         AddressBindings(),
       ],
+    ),
+    GetPage(
+      name: marketSelection,
+      page: () => const MarketScreen(),
+      bindings: [MarketBindings()],
     ),
     GetPage(
       name: paymentMethod,

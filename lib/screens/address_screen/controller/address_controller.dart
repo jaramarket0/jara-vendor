@@ -85,7 +85,7 @@ class AddressController extends GetxController {
         myLog.log('Profile updated successfully');
 
         addressController.clear();
-        Navigator.pushNamed(Get.context!, '/payment-method');
+        Navigator.pushNamed(Get.context!, '/market-selection');
       } else {
         OverlayLoadingProgress.stop();
         var responseBody = await response.stream.bytesToString();
