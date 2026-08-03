@@ -101,8 +101,31 @@ class _JobCompletedScreenState extends State<JobCompletedScreen> {
                   borderRadius: BorderRadius.all(Radius.circular(12)),
                   color: Colors.white,
                 ),
-                child: Column(
+                // Adding the image thumbnail pushes total content past the
+                // fixed 600px height on smaller screens -- scroll instead of
+                // overflowing.
+                child: SingleChildScrollView(
+                  child: Column(
                   children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: (myData.imageUrl != null && myData.imageUrl!.isNotEmpty)
+                            ? Image.network(
+                                myData.imageUrl!,
+                                width: double.infinity,
+                                height: 160,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    _imagePlaceholder(),
+                              )
+                            : _imagePlaceholder(),
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -577,12 +600,22 @@ class _JobCompletedScreenState extends State<JobCompletedScreen> {
                       ],
                     ),
                   ],
+                  ),
                 ),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _imagePlaceholder() {
+    return Container(
+      width: double.infinity,
+      height: 160,
+      color: Colors.grey.shade200,
+      child: Icon(Icons.image_outlined, color: Colors.grey.shade400, size: 40),
     );
   }
 
