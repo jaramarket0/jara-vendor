@@ -61,6 +61,7 @@ dependencies:
   audioplayers: ^6.1.0
   device_info_plus: ^13.1.0
   font_awesome_flutter: ^11.0.0
+  sign_in_with_apple: ^7.0.1
 
 dev_dependencies:
   flutter_test:

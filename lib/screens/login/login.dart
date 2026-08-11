@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/utils.dart';
@@ -245,6 +246,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     authController.loginWithGoogle();
                   },
                 ),
+                if (Platform.isIOS) ...[
+                  const SizedBox(height: 12),
+                  _buildSocialButton(
+                    'Continue with Apple',
+                    'assets/apple_logo.png',
+                    () {
+                      authController.loginWithApple();
+                    },
+                  ),
+                ],
                 const SizedBox(height: 24),
                 Center(
                   child: TextButton(

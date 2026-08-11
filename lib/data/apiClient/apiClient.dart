@@ -476,6 +476,32 @@ class ApiClient extends GetConnect {
     return response;
   }
 
+  Future<http.Response> appleSignIn({
+    required String identityToken,
+    required String role,
+    String? firstName,
+    String? lastName,
+  }) async {
+    final url = Uri.parse('$baseUrl/apple-signin');
+    final body = {
+      'identity_token': identityToken,
+      'role': role,
+      if (firstName != null && firstName.isNotEmpty) 'firstname': firstName,
+      if (lastName != null && lastName.isNotEmpty) 'lastname': lastName,
+    };
+    _logRequest('POST', url, body: body);
+    final response = await authHttpClient.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode(body),
+    );
+    _logResponse(response);
+    return response;
+  }
+
   Future<http.Response> setPin(String pin, String confirmPin) async {
     return authHttpClient
         .post(
@@ -713,55 +739,45 @@ class ApiClient extends GetConnect {
     return response;
   }
 
-  Future<http.Response> fetchState() async {
-    //var token = await dataBase.getToken();
+  // States/LGAs/markets are public endpoints, but they are also hit during
+  // onboarding before any login. Sending "Authorization: Bearer" with an
+  // empty/stale token makes the server reject the request with 401, which
+  // AuthHttpClient treats as an expired session and kicks the user to the
+  // login screen mid-onboarding -- so only attach the header when a real
+  // token exists.
+  Future<Map<String, String>> _publicHeaders() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token') ?? '';
+    return <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Accept': 'application/json',
+      if (token.isNotEmpty) 'Authorization': 'Bearer $token',
+    };
+  }
+
+  Future<http.Response> fetchState() async {
     final url = Uri.parse('$baseUrl/states');
     _logRequest('GET', url);
-    final response = await authHttpClient.get(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+    final response = await authHttpClient.get(url, headers: await _publicHeaders());
     _logResponse(response);
     return response;
   }
 
-  Future<http.Response> fetchMarkets() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token') ?? '';
-    final url = Uri.parse('$baseUrl/markets');
+  Future<http.Response> fetchMarkets({int? stateId, int? lgaId}) async {
+    final url = Uri.parse('$baseUrl/markets').replace(queryParameters: {
+      if (stateId != null) 'state_id': stateId.toString(),
+      if (lgaId != null) 'lga_id': lgaId.toString(),
+    });
     _logRequest('GET', url);
-    final response = await authHttpClient.get(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+    final response = await authHttpClient.get(url, headers: await _publicHeaders());
     _logResponse(response);
     return response;
   }
 
   Future<http.Response> fetchLgas(String name) async {
-    // var token = await dataBase.getToken();
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token') ?? '';
     final url = Uri.parse('$baseUrl/lgas?state=$name');
     _logRequest('GET', url);
-    final response = await authHttpClient.get(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+    final response = await authHttpClient.get(url, headers: await _publicHeaders());
     _logResponse(response);
     return response;
   }
