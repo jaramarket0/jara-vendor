@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -164,6 +165,50 @@ class _OrdersScreenState extends State<OrdersScreen>
     );
   }
 
+  /// The buyer's own note / voice note for the whole order.
+  Widget _buildCustomerMessage(String? remarks, String? audioUrl) {
+    final hasText = remarks != null && remarks.trim().isNotEmpty;
+    final hasAudio = audioUrl != null && audioUrl.trim().isNotEmpty;
+    if (!hasText && !hasAudio) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF8E7),
+        border: Border.all(color: const Color(0xFFFFE0A3)),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.sticky_note_2_outlined,
+                  size: 15, color: Color(0xFFB07400)),
+              SizedBox(width: 6),
+              Text('Note from customer',
+                  style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFFB07400))),
+            ],
+          ),
+          if (hasText) ...[
+            const SizedBox(height: 5),
+            Text(remarks.trim(),
+                style: const TextStyle(
+                    fontSize: 12.5, height: 1.35, color: Color(0xFF5C4300))),
+          ],
+          if (hasAudio) ...[
+            const SizedBox(height: 6),
+            _VoiceNotePlayer(url: audioUrl),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _buildOrderCardAvailable(bool isCompleted, Data dataAvaialable) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -250,13 +295,24 @@ class _OrdersScreenState extends State<OrdersScreen>
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Line total, not the unit price -- a food item can be
+                    // e.g. 3 cups at N1,000, and the shopper needs the N3,000.
                     Text(
-                      '₦${dataAvaialable.price}',
+                      '₦${_lineTotal(dataAvaialable)}',
                       style: const TextStyle(
                         fontSize: 14,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w800,
                         color: Color(0xffFA254C),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _qtyBreakdown(dataAvaialable),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontFamily: 'Inter',
+                        color: Colors.grey,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -348,6 +404,8 @@ class _OrdersScreenState extends State<OrdersScreen>
               ],
             ),
           ),
+          _buildCustomerMessage(
+              dataAvaialable.orderRemarks, dataAvaialable.orderAudio),
           const SizedBox(height: 16),
         ],
       ),
@@ -567,6 +625,106 @@ class _OrdersScreenState extends State<OrdersScreen>
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Money formatting shared by the order cards.
+String _money(num v) => v
+    .toStringAsFixed(2)
+    .replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
+
+/// What the shopper actually has to buy: quantity x unit price. The backend
+/// sends `amount` as the line total, but fall back to qty x price if it's
+/// missing so the card never shows a bare unit price.
+String _lineTotal(dynamic item) {
+  final amount = double.tryParse('${item.amount ?? ''}') ?? 0;
+  if (amount > 0) return _money(amount);
+  final unit = double.tryParse('${item.price ?? ''}') ?? 0;
+  final qty = (item.quantity ?? 1) as int;
+  return _money(unit * qty);
+}
+
+/// e.g. "3 cup x N1,000.00"
+String _qtyBreakdown(dynamic item) {
+  final unit = double.tryParse('${item.price ?? ''}') ?? 0;
+  final qty = (item.quantity ?? 1) as int;
+  final unitLabel = (item.unit ?? '').toString().trim();
+  final measure = unitLabel.isEmpty ? '$qty' : '$qty $unitLabel';
+  return '$measure × ₦${_money(unit)}';
+}
+
+/// Small play/pause control for the buyer's recorded note.
+class _VoiceNotePlayer extends StatefulWidget {
+  final String url;
+  const _VoiceNotePlayer({required this.url});
+
+  @override
+  State<_VoiceNotePlayer> createState() => _VoiceNotePlayerState();
+}
+
+class _VoiceNotePlayerState extends State<_VoiceNotePlayer> {
+  final AudioPlayer _player = AudioPlayer();
+  bool _playing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _player.onPlayerComplete.listen((_) {
+      if (mounted) setState(() => _playing = false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+    super.dispose();
+  }
+
+  Future<void> _toggle() async {
+    try {
+      if (_playing) {
+        await _player.pause();
+        if (mounted) setState(() => _playing = false);
+      } else {
+        await _player.play(UrlSource(widget.url));
+        if (mounted) setState(() => _playing = true);
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not play the voice note.')),
+        );
+        setState(() => _playing = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: _toggle,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: const Color(0xFFB07400),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(_playing ? Icons.pause : Icons.play_arrow,
+                size: 15, color: Colors.white),
+            const SizedBox(width: 5),
+            Text(_playing ? 'Playing…' : 'Play voice note',
+                style: const TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white)),
+          ],
+        ),
       ),
     );
   }

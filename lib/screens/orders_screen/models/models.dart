@@ -44,6 +44,8 @@ class Data {
   String? name;
   String? price;
   String? amount;
+  String? orderRemarks;
+  String? orderAudio;
   String? unit;
   int? quantity;
   String? imageUrl;
@@ -68,6 +70,8 @@ class Data {
     this.name,
     this.price,
     this.amount,
+    this.orderRemarks,
+    this.orderAudio,
     this.unit,
     this.quantity,
     this.imageUrl,
@@ -92,6 +96,8 @@ class Data {
     name = json['name'];
     price = json['price'];
     amount = json['amount'];
+    orderRemarks = json['order_remarks'];
+    orderAudio = json['order_audio'];
     unit = json['unit'];
     quantity = json['quantity'];
     imageUrl = json['image_url'];
@@ -110,6 +116,8 @@ class Data {
     data['name'] = name;
     data['price'] = price;
     data['amount'] = amount;
+    data['order_remarks'] = orderRemarks;
+    data['order_audio'] = orderAudio;
     data['unit'] = unit;
     data['quantity'] = quantity;
     data['image_url'] = imageUrl;

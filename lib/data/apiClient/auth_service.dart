@@ -53,6 +53,7 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'dart:developer' as myLog;
 
 import 'package:jara_vendor/data/apiClient/apiClient.dart';
+import 'package:jara_vendor/send_token_service.dart';
 import 'package:jara_vendor/utils/storage.dart';
 
 
@@ -251,6 +252,10 @@ class AuthController extends GetxController {
       await _db.saveEmail(data['email'] ?? fallbackEmail);
 
       isLoggedIn.value = true;
+      // Social sign-in bypasses the login controller, so register here too.
+      if (Get.isRegistered<SendTokenService>()) {
+        await Get.find<SendTokenService>().registerCurrentToken();
+      }
 
       // Brand-new vendors continue onboarding (email is already verified by
       // the provider, so account-creation/OTP steps are skipped); returning

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:jara_vendor/screens/login/models/models.dart';
+import 'package:jara_vendor/send_token_service.dart';
 import 'package:jara_vendor/screens/otp_verification/otp_verification.dart';
 
 import 'package:jara_vendor/utils/storage.dart';
@@ -67,6 +68,12 @@ class LoginController extends GetxController {
         await dataBase.saveReferalCode(data.referralCode ?? 'N/A');
         await dataBase.saveReferalCount(data.referralCount?.toString() ?? 'N/A');
         await dataBase.saveRefererId(data.referrerId ?? 'N/A');
+
+        // Now that we're authenticated, push the device's FCM token up --
+        // registration at app start is skipped while logged out.
+        if (Get.isRegistered<SendTokenService>()) {
+          await Get.find<SendTokenService>().registerCurrentToken();
+        }
 
         emailController.dispose();
         passwordController.dispose();
