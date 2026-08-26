@@ -84,6 +84,7 @@ class AppRoutes {
   static const String wallet = '/wallet';
   static const String splash = '/splash';
   static const String login = '/login';
+  static const String newPassword = '/new-password';
   static const String referralS = '/referral_screen';
   static const String addScreen = '/add-money';
   static const String privacyPolicyScreen = '/privacy_policy_screen';

@@ -1,12 +1,20 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jara_vendor/data/apiClient/apiClient.dart';
-import 'package:jara_vendor/screens/otp_verification/otp_verification.dart';
+import 'package:jara_vendor/screens/new_password_screen/new_password_screen.dart';
 
 class ForgetPasswordController extends GetxController {
   ApiClient apiService = ApiClient(Duration(seconds: 60 * 5));
   RxBool isLoading = false.obs;
   TextEditingController emailController = TextEditingController();
+
+  @override
+  void onClose() {
+    emailController.dispose();
+    super.onClose();
+  }
 
   Future<void> requestPasswordReset() async {
     isLoading.value = true;
@@ -23,20 +31,24 @@ class ForgetPasswordController extends GetxController {
       isLoading.value = false;
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final email = emailController.text;
-        emailController.dispose();
+        final email = emailController.text.trim();
+        // Straight to the reset screen -- the signup OTP screen verifies via
+        // the signup endpoint and drops the user into vendor onboarding,
+        // which is not what a password reset should do. It also consumes the
+        // OTP that /reset-password still needs.
         Navigator.push(
           Get.context!,
           MaterialPageRoute(
-            builder: (context) => OtpVerificationScreen(email: email),
+            builder: (context) => NewPasswordScreen(email: email),
           ),
         );
       } else {
-        ScaffoldMessenger.of(Get.context!).showSnackBar(
-          SnackBar(
-            content: Text('Password reset request failed: ${response.body}'),
-          ),
-        );
+        String message = 'Something went wrong';
+        try {
+          message = (jsonDecode(response.body)['message'] ?? message).toString();
+        } catch (_) {}
+        Get.snackbar('Password reset failed', message,
+            backgroundColor: Colors.red, colorText: Colors.white);
       }
     } catch (e) {
       isLoading.value = false;
