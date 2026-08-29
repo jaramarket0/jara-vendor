@@ -69,6 +69,9 @@ const _googleServerClientId =
 class AuthController extends GetxController {
   // Observables for UI state management
   var isLoading = false.obs;
+  // Which provider is mid-flight ('google' | 'apple' | ''), so the spinner
+  // shows on the button that was actually tapped and the other disables.
+  var loadingProvider = ''.obs;
   var errorMessage = ''.obs;
   var isLoggedIn = false.obs;
 
@@ -110,7 +113,9 @@ class AuthController extends GetxController {
 
   /// Unified Sign-In / Sign-Up Flow via Google
   Future<void> loginWithGoogle() async {
+    if (loadingProvider.value.isNotEmpty) return; // ignore double taps
     isLoading.value = true;
+    loadingProvider.value = 'google';
     errorMessage.value = '';
 
     try {
@@ -177,12 +182,18 @@ class AuthController extends GetxController {
       } else {
         errorMessage.value = 'Google sign-in error: $e';
       }
+    } finally {
+      // Every exit path -- success, cancel, error -- must release the button.
+      isLoading.value = false;
+      loadingProvider.value = '';
     }
   }
 
   /// Sign-In / Sign-Up via Apple (iOS). Same backend upsert contract as Google.
   Future<void> loginWithApple() async {
+    if (loadingProvider.value.isNotEmpty) return; // ignore double taps
     isLoading.value = true;
+    loadingProvider.value = 'apple';
     errorMessage.value = '';
 
     try {
@@ -226,6 +237,9 @@ class AuthController extends GetxController {
       } else {
         errorMessage.value = 'Apple sign-in error: $e';
       }
+    } finally {
+      isLoading.value = false;
+      loadingProvider.value = '';
     }
   }
 

@@ -1,9 +1,10 @@
 import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/utils.dart';
 import 'package:jara_vendor/data/apiClient/auth_service.dart';
-import 'package:jara_vendor/screens/forget_password_screen/forget_password_screen.dart';
+import 'package:jara_vendor/routes/app_routes.dart';
 import 'package:jara_vendor/screens/login/controller/login_controller.dart';
 import '../../widgets/status_bar.dart';
 
@@ -205,7 +206,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      ForgetPasswordScreen();
+                      // Was `ForgetPasswordScreen();` -- that just built the
+                      // widget and discarded it, so the tap did nothing.
+                      Get.toNamed(AppRoutes.forgetPassword);
                     },
                     child: RichText(
                       text: const TextSpan(
@@ -239,22 +242,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                _buildSocialButton(
-                  'Continue with Google',
-                  'assets/google_logo.png',
-                  () {
-                    authController.loginWithGoogle();
-                  },
-                ),
+                Obx(() => _buildSocialButton(
+                      'Continue with Google',
+                      'assets/google_logo.png',
+                      authController.loginWithGoogle,
+                      isLoading:
+                          authController.loadingProvider.value == 'google',
+                      enabled: authController.loadingProvider.value.isEmpty,
+                    )),
                 if (Platform.isIOS) ...[
                   const SizedBox(height: 12),
-                  _buildSocialButton(
-                    'Continue with Apple',
-                    'assets/apple_logo.png',
-                    () {
-                      authController.loginWithApple();
-                    },
-                  ),
+                  Obx(() => _buildSocialButton(
+                        'Continue with Apple',
+                        'assets/apple_logo.png',
+                        authController.loginWithApple,
+                        isLoading:
+                            authController.loadingProvider.value == 'apple',
+                        enabled: authController.loadingProvider.value.isEmpty,
+                      )),
                 ],
                 const SizedBox(height: 24),
                 Center(
@@ -321,25 +326,38 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  /// [isLoading] swaps the logo for a spinner on the provider being used;
+  /// [enabled] is false on the others so a second flow can't be started.
   Widget _buildSocialButton(
     String text,
     String iconPath,
-    VoidCallback onPressed,
-  ) {
+    VoidCallback onPressed, {
+    bool isLoading = false,
+    bool enabled = true,
+  }) {
     return ElevatedButton(
-      onPressed: onPressed,
+      onPressed: (isLoading || !enabled) ? null : onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
+        disabledBackgroundColor: Colors.white,
+        disabledForegroundColor: Colors.grey.shade400,
         elevation: 0,
         side: BorderSide(color: Colors.grey.shade300),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(iconPath, height: 24, width: 24),
+          if (isLoading)
+            const SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(strokeWidth: 2.2),
+            )
+          else
+            Image.asset(iconPath, height: 24, width: 24),
           const SizedBox(width: 12),
-          Text(text),
+          Text(isLoading ? 'Please wait…' : text),
         ],
       ),
     );

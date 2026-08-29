@@ -20,6 +20,8 @@ import 'package:jara_vendor/screens/email_verification/bindings/email_verificati
 import 'package:jara_vendor/screens/email_verification/email_verification.dart';
 import 'package:jara_vendor/screens/faq_screen/bindings/faq_bindings.dart';
 import 'package:jara_vendor/screens/faq_screen/faq_screen.dart';
+import 'package:jara_vendor/screens/forget_password_screen/bindings/forget_password_bindings.dart';
+import 'package:jara_vendor/screens/forget_password_screen/forget_password_screen.dart';
 import 'package:jara_vendor/screens/job_completed/bindings/job_completed_bindings.dart';
 import 'package:jara_vendor/screens/job_completed/job_completed.dart';
 import 'package:jara_vendor/screens/job_details/bindings/job_details_bindings.dart';
@@ -84,6 +86,7 @@ class AppRoutes {
   static const String wallet = '/wallet';
   static const String splash = '/splash';
   static const String login = '/login';
+  static const String forgetPassword = '/forget-password';
   static const String newPassword = '/new-password';
   static const String referralS = '/referral_screen';
   static const String addScreen = '/add-money';
@@ -118,6 +121,11 @@ class AppRoutes {
       name: faqScreen,
       page: () => const FaqScreen(),
       bindings: [FaqBindings()],
+    ),
+    GetPage(
+      name: forgetPassword,
+      page: () => const ForgetPasswordScreen(),
+      bindings: [ForgetPasswordBindings()],
     ),
     GetPage(
       name: createAccount,

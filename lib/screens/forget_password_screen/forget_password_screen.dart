@@ -39,7 +39,10 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
       appBar: CustomAppBar(
         title: 'Forget Password',
         titleColor: Colors.orange,
-        onBackPressed: () {},
+        showCart: false,
+        // An empty callback left the close button dead -- CustomAppBar only
+        // falls back to Navigator.pop when onBackPressed is null.
+        onBackPressed: () => Get.back(),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
