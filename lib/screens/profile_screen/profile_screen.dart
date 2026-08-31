@@ -656,6 +656,75 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                             const SizedBox(height: 16),
+                            // Market and categories decide which orders reach
+                            // this vendor, so they get a first-class row here
+                            // rather than being fixed only during onboarding.
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              child: GestureDetector(
+                                onTap: () =>
+                                    Get.toNamed(AppRoutes.shopProfile),
+                                child: Container(
+                                  padding: const EdgeInsets.all(14),
+                                  decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(20),
+                                    ),
+                                    color: const Color.fromARGB(14, 45, 45, 1),
+                                    border: Border.all(
+                                      width: 1,
+                                      color: const Color.fromARGB(
+                                        88,
+                                        128,
+                                        128,
+                                        128,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.storefront_outlined,
+                                        size: 20,
+                                        color: Color(0xFFFFAA00),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      const Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Shop Details',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            Text(
+                                              'Market and the categories you sell',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontFamily: 'Poppins',
+                                                color: Color(0xFF888888),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const Icon(
+                                        Icons.chevron_right,
+                                        color: Color(0xFFBDBDBD),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
                             // const SettingsCard(),
                             Padding(
                               padding: const EdgeInsets.symmetric(

@@ -21,6 +21,12 @@ class DashboardController extends GetxController {
 
   void toggleBalanceVisibility() => balanceHidden.value = !balanceHidden.value;
 
+  /// The eye toggle covers every figure on the dashboard, not just the wallet
+  /// balance. Masking the balance alone was pointless -- total revenue sat
+  /// directly beneath it and each recent order showed its amount, so anyone
+  /// glancing at the screen still saw the money.
+  String mask(String value) => balanceHidden.value ? '••••' : value;
+
   /// 'day' | 'week' | 'month'  (default per API docs: week)
   final RxString selectedPeriod = 'week'.obs;
 

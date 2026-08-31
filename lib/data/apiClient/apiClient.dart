@@ -774,6 +774,36 @@ class ApiClient extends GetConnect {
     return response;
   }
 
+  /// The signed-in vendor's market and categories. Authenticated (works off
+  /// the token) rather than the email-keyed onboarding endpoints, so a vendor
+  /// can only ever read or change their own shop.
+  Future<http.Response> getVendorShopProfile() async {
+    final url = Uri.parse('$baseUrl/vendor/shop-profile');
+    _logRequest('GET', url);
+    final response = await authHttpClient.get(url, headers: await _authHeaders());
+    _logResponse(response);
+    return response;
+  }
+
+  Future<http.Response> updateVendorShopProfile({
+    int? marketId,
+    List<int>? categoryIds,
+  }) async {
+    final url = Uri.parse('$baseUrl/vendor/shop-profile');
+    final body = <String, dynamic>{
+      if (marketId != null) 'market_id': marketId,
+      if (categoryIds != null) 'category_ids': categoryIds,
+    };
+    _logRequest('POST', url, body: body);
+    final response = await authHttpClient.post(
+      url,
+      headers: await _authHeaders(),
+      body: jsonEncode(body),
+    );
+    _logResponse(response);
+    return response;
+  }
+
   Future<http.Response> fetchLgas(String name) async {
     final url = Uri.parse('$baseUrl/lgas?state=$name');
     _logRequest('GET', url);

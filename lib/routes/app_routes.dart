@@ -49,6 +49,8 @@ import 'package:jara_vendor/screens/profile_screen/bindings/profile_bindings.dar
 import 'package:jara_vendor/screens/profile_screen/profile_screen.dart';
 import 'package:jara_vendor/screens/referral_screen/bindings/referral_bindings.dart';
 import 'package:jara_vendor/screens/referral_screen/referral_screen.dart';
+import 'package:jara_vendor/screens/shop_profile/bindings/shop_profile_bindings.dart';
+import 'package:jara_vendor/screens/shop_profile/shop_profile_screen.dart';
 import 'package:jara_vendor/screens/shop_size/shop_size.dart';
 import 'package:jara_vendor/screens/splash_screen/bindings/splash_bindings.dart';
 import 'package:jara_vendor/screens/splash_screen/splash_screen.dart';
@@ -87,6 +89,7 @@ class AppRoutes {
   static const String splash = '/splash';
   static const String login = '/login';
   static const String forgetPassword = '/forget-password';
+  static const String shopProfile = '/shop-profile';
   static const String newPassword = '/new-password';
   static const String referralS = '/referral_screen';
   static const String addScreen = '/add-money';
@@ -159,6 +162,11 @@ class AppRoutes {
       bindings: [ProductSelectionBindings()],
     ),
     GetPage(name: shopSize, page: () => const ShopSizeScreen()),
+    GetPage(
+      name: shopProfile,
+      page: () => const ShopProfileScreen(),
+      bindings: [ShopProfileBindings()],
+    ),
     GetPage(
       name: address,
       page: () => const AddressScreen(),

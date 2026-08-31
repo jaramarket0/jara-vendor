@@ -487,15 +487,21 @@ class _WalletCard extends StatelessWidget {
                 const SizedBox(height: 20),
                 Container(height: 0.5, color: Colors.white12),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    _WalletSubStat(
-                      label: 'Total revenue',
-                      value: '₦ ${fmt.format(data?.totalRevenue ?? 0)}',
-                    ),
-                    const SizedBox(width: 28),
-                    const _WalletSubStat(label: 'This period', value: '₦ 0.00'),
-                  ],
+                Obx(
+                  () => Row(
+                    children: [
+                      _WalletSubStat(
+                        label: 'Total revenue',
+                        value: controller.mask(
+                            '₦ ${fmt.format(data?.totalRevenue ?? 0)}'),
+                      ),
+                      const SizedBox(width: 28),
+                      _WalletSubStat(
+                        label: 'This period',
+                        value: controller.mask('₦ 0.00'),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -613,7 +619,13 @@ class _StatsGrid extends StatelessWidget {
         mainAxisSpacing: 10,
         childAspectRatio: 1.55,
       ),
-      itemBuilder: (_, i) => _StatCard(data: cards[i]),
+      // Counts are figures too -- the toggle hides the whole picture, not
+      // just the money.
+      itemBuilder: (_, i) => Obx(
+        () => _StatCard(
+          data: cards[i].withValue(controller.mask(cards[i].value)),
+        ),
+      ),
     );
   }
 }
@@ -631,6 +643,16 @@ class _StatCardData {
     required this.iconColor,
     required this.bgColor,
   });
+
+  /// Same card with a different figure -- used to swap in the masked value
+  /// without rebuilding the icon/colour choices.
+  _StatCardData withValue(String newValue) => _StatCardData(
+        label: label,
+        value: newValue,
+        icon: icon,
+        iconColor: iconColor,
+        bgColor: bgColor,
+      );
 }
 
 class _StatCard extends StatelessWidget {
@@ -874,12 +896,14 @@ class _OrderRow extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                '₦ ${fmt.format(order.amount)}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1A1A1A),
+              Obx(
+                () => Text(
+                  controller.mask('₦ ${fmt.format(order.amount)}'),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1A1A1A),
+                  ),
                 ),
               ),
               const SizedBox(height: 4),
