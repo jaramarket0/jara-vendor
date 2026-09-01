@@ -10,6 +10,12 @@ import '../../widgets/status_bar.dart';
 
 OrdersController controller = Get.put(OrdersController());
 
+/// Standing notice on every history card. Kept as a constant so the wording
+/// is changed in one place rather than edited into the widget tree.
+const String _qualityNotice =
+    'Dear vendor, ensure that the ingredients are of good quality, '
+    'otherwise you will be blacklisted.';
+
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
 
@@ -586,11 +592,12 @@ class _OrdersScreenState extends State<OrdersScreen>
                     children: [
                       Text('Message'),
                       Text(
-                        'Lorem ipsum dolor sit amet consectetur. Nibh malesuada nisi massa pulvinar gravida volutpat vitae consectetur.',
+                        _qualityNotice,
                         style: TextStyle(
                           fontSize: 10,
                           fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w400,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFFC62828),
                         ),
                       ),
                     ],
