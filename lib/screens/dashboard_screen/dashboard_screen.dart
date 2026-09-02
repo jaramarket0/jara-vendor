@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:jara_vendor/routes/app_routes.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/route_manager.dart';
 import 'package:intl/intl.dart';
@@ -712,7 +713,13 @@ class _QuickActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final actions = [
-      _QAData(label: 'Add product', icon: Icons.add_rounded, route: null),
+      // Same destination as the Shop Details row on the profile screen --
+      // the market and categories that decide which orders reach this vendor.
+      _QAData(
+        label: 'Shop details',
+        icon: Icons.storefront_outlined,
+        route: AppRoutes.shopProfile,
+      ),
       _QAData(label: 'Orders', icon: Icons.list_alt_rounded, route: '/orders'),
       _QAData(
         label: 'Withdraw',

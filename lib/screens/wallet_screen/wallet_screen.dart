@@ -247,7 +247,6 @@
 //   }
 // }
 
-import 'package:jara_vendor/screens/add_money_screen/add_money_screen.dart';
 import 'package:jara_vendor/screens/wallet_screen/withdraw_screen.dart';
 import 'package:jara_vendor/widgets/status_bar.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
@@ -330,21 +329,6 @@ class _WalletScreenState extends State<WalletScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  _buildActionButton(
-                                    icon: 'assets/add.svg',
-                                    label: 'Add Money',
-                                    onTap: () async {
-                                      await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const AddMoneyScreen(),
-                                        ),
-                                      );
-
-                                      // Navigator.pushNamed(context, '/add-money');
-                                    },
-                                  ),
                                   _buildActionButton(
                                     icon: 'assets/withdraw.svg',
                                     label: 'Withdraw',
