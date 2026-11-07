@@ -438,6 +438,11 @@ class DataBase extends GetxController {
     return true;
   }
 
+  Future<String> getRole() async {
+    SharedPreferences sharedPreferences = await _pref;
+    return sharedPreferences.getString('role') ?? '';
+  }
+
 
     saveReferalCode(String refCode) async {
     SharedPreferences sharedPreferences = await _pref;

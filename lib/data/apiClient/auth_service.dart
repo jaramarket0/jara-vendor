@@ -257,9 +257,25 @@ class AuthController extends GetxController {
     if (res['status'] == true) {
       final data = res['data'];
 
+      // Customer accounts don't belong in the vendor app. Reject before
+      // anything is saved, so no session exists.
+      if (!isVendorRole(data['role'])) {
+        errorMessage.value = notVendorAccountMessage;
+        if (provider == 'Google') {
+          // Clear the cached Google account so they can pick a different one.
+          try {
+            await GoogleSignIn.instance.signOut();
+          } catch (e) {
+            myLog.log('Google sign-out after rejected login failed: $e');
+          }
+        }
+        return;
+      }
+
       // Persist session tokens locally
       await _db.saveToken(data['token'] ?? '');
       await _db.saveRefreshToken(data['refresh_token'] ?? '');
+      await _db.saveRole(data['role']);
       final backendName =
           '${data['firstname'] ?? ''} ${data['lastname'] ?? ''}'.trim();
       await _db.saveUserName(backendName.isNotEmpty ? backendName : fallbackName);

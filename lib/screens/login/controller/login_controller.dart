@@ -54,6 +54,19 @@ class LoginController extends GetxController {
         loginModel = loginModelFromJson(response.body);
         data = loginModel.data;
         OverlayLoadingProgress.stop();
+
+        // Customer accounts share this login endpoint but don't belong in the
+        // vendor app. Reject before anything is saved, so no session exists.
+        if (!isVendorRole(data.role)) {
+          ScaffoldMessenger.of(Get.context!).showSnackBar(
+            const SnackBar(
+              content: Text(notVendorAccountMessage),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
         // Save token and user data to shared preferences
         await dataBase.saveToken(data.token ?? 'N/A');
         await dataBase.saveUserId(

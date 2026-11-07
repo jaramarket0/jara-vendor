@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'package:jara_vendor/data/apiClient/apiClient.dart';
 import 'package:jara_vendor/screens/onboarding_screen/onboarding_screen.dart';
@@ -35,10 +36,22 @@ TextEditingController pinController = TextEditingController();
 
   RxString? errorMessage = ''.obs;
 
-  void fetchUserProfileByCondition() {
+  Future<void> fetchUserProfileByCondition() async {
     // Replace 'id' with a field that is always present in ProfileData and indicates data presence
-    if (data.id != null) return;
+    // An expired session ends outside this controller, so also check the cached
+    // profile still belongs to whoever is signed in now.
+    if (data.id != null && data.email == await dataBase.getEmail()) return;
     fetchUserProfile();
+  }
+
+  /// Drops the cached profile so the next account to sign in fetches its
+  /// own instead of seeing the previous one's.
+  void _clearProfile() {
+    profileModel = ProfileModel(status: false, message: '', data: ProfileData());
+    data = ProfileData();
+    file1.value = null;
+    isToUpdate.value = false;
+    isPINSet.value = false;
   }
 
   Future<void> fetchUserProfile() async {
@@ -226,9 +239,52 @@ TextEditingController pinController = TextEditingController();
     var response = await apiService.logOut();
     if (response.statusCode == 200 || response.statusCode == 201) {
       myLog.log('User logged out successfully');
-      dataBase.logOut();
+      await dataBase.logOut();
+      _clearProfile();
       Get.offAll(() => const OnboardingScreen());
       Get.snackbar("Logged out", "You have been logged out successfully");
+    }
+  }
+
+  RxBool isDeletingAccount = false.obs;
+
+  Future<void> deleteAccount() async {
+    if (isDeletingAccount.value) return;
+    isDeletingAccount.value = true;
+    try {
+      final response = await apiService.deleteAccount();
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await dataBase.logOut();
+        _clearProfile();
+        Get.offAll(() => const OnboardingScreen());
+        Get.snackbar(
+          'Account Deleted',
+          'Your account and personal data have been deleted.',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      } else {
+        String message = 'Could not delete your account. Please try again.';
+        try {
+          message = jsonDecode(response.body)['message'] ?? message;
+        } catch (_) {}
+        Get.snackbar(
+          'Error',
+          message,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      myLog.log('Delete account failed: $e');
+      Get.snackbar(
+        'Error',
+        'Could not delete your account. Please try again.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isDeletingAccount.value = false;
     }
   }
 

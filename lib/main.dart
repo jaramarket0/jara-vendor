@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:alert_info/alert_info.dart';
@@ -10,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:jara_vendor/data/apiClient/apiClient.dart';
 import 'package:jara_vendor/firebase_options.dart';
 import 'package:jara_vendor/routes/app_routes.dart';
 import 'package:jara_vendor/send_token_service.dart';
@@ -260,6 +262,38 @@ Future<void> _initLocalNotifications() async {
   );
 }
 
+// ─── Session role check ──────────────────────────────────────────────────────
+
+bool _isRoleKnown(String role) => role.isNotEmpty && role != 'N/A';
+
+/// Older Google/Apple sessions never stored a role, so ask the backend. Runs
+/// after runApp so a slow network can't hold up launch; if the request fails
+/// the session is left alone and this runs again next launch.
+Future<void> _verifySessionRole() async {
+  try {
+    final response = await ApiClient(API_TIMEOUT_DURATION).getUser();
+    if (response.statusCode != 200) return;
+
+    final String role = jsonDecode(response.body)['data']?['role'] ?? '';
+    if (!_isRoleKnown(role)) return;
+
+    if (isVendorRole(role)) {
+      await dataBase.saveRole(role);
+      return;
+    }
+    await dataBase.clearAuthSession();
+    Get.offAllNamed(AppRoutes.login);
+    Get.snackbar(
+      'Sign-In',
+      notVendorAccountMessage,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+  } catch (e) {
+    myLog.log('Session role check failed: $e');
+  }
+}
+
 // ─── FCM background setup (runs after runApp, never blocks UI) ───────────────
 
 Future<void> _setupFcmInBackground(SendTokenService sendTokenService) async {
@@ -360,9 +394,19 @@ void main() async {
 
   // storage.dart already registers DataBase via Get.put — no duplicate needed
   String initialRoute = '/splash';
+  bool roleNeedsVerifying = false;
   try {
     final token = await dataBase.getToken();
-    initialRoute = token.isNotEmpty ? '/dashboard' : '/splash';
+    if (token.isNotEmpty) {
+      final storedRole = await dataBase.getRole();
+      if (_isRoleKnown(storedRole) && !isVendorRole(storedRole)) {
+        // A non-vendor session from before logins were restricted.
+        await dataBase.clearAuthSession();
+      } else {
+        roleNeedsVerifying = !_isRoleKnown(storedRole);
+        initialRoute = '/dashboard';
+      }
+    }
   } catch (e) {
     myLog.log('Token fetch error: $e');
   }
@@ -404,6 +448,7 @@ void main() async {
   // FCM permission + token run in the background after runApp fires.
   // They must never block runApp — they make network/dialog calls that can hang.
   unawaited(_setupFcmInBackground(sendTokenService));
+  if (roleNeedsVerifying) unawaited(_verifySessionRole());
 }
 
 class MyApp extends StatelessWidget {
