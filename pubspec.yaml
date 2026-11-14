@@ -46,7 +46,7 @@ dependencies:
   flutter_svg:
   circular_countdown_timer:
   image_picker:
-  # font_awesome_flutter: 
+  # font_awesome_flutter 
   url_launcher:
   dropdown_search:
   atomic_webview:
