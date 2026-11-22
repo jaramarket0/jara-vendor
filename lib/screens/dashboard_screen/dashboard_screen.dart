@@ -23,14 +23,18 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  int _currentIndex = 0;
-
   final List<Widget> _tabs = [
     const HomeTab(),
     const OrdersTab(),
     const WalletTab(),
     const ProfileTab(),
   ];
+
+  /// Vendors open this app to work orders, not to read a summary -- so that's
+  /// where they land. Home is still a tap away.
+  static const int _ordersTab = 1;
+
+  int _currentIndex = _ordersTab;
 
   @override
   Widget build(BuildContext context) {
