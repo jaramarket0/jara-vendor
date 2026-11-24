@@ -63,6 +63,63 @@ const String navigationActionId = 'id_3';
 const String darwinNotificationCategoryText = 'textCategory';
 const String darwinNotificationCategoryPlain = 'plainCategory';
 
+// ─── Notification channels ──────────────────────────────────────────────────
+//
+// A channel's sound is fixed when Android first creates it and can NEVER be
+// changed afterwards -- editing `sound:` in code does nothing on a phone that
+// already has the channel. So the id carries a version: bumping it is the
+// only way to ship a sound change to existing installs. If you change the
+// sound again, bump this and nothing else.
+const String orderChannelId = 'order_channel_v2';
+const String orderChannelName = 'Order Notifications';
+const String generalChannelId = 'high_importance_channel';
+
+/// The custom alert, as it is named in android/app/src/main/res/raw/.
+/// No file extension -- Android resolves it as a raw resource.
+const String orderSoundResource = 'order_alert';
+
+/// The push types that mean "an order is waiting for you", and so earn the
+/// loud channel. Must stay in step with ANDROID_ORDER_ALERT_TYPES in the
+/// backend's api/notifications.py -- the server names the channel for
+/// notifications Android draws while this app is in the background, and this
+/// list covers the ones the app draws itself in the foreground.
+const Set<String> orderAlertTypes = {'new_order', 'market_offer'};
+
+const AndroidNotificationChannel orderChannel = AndroidNotificationChannel(
+  orderChannelId,
+  orderChannelName,
+  description: 'Loud alert when a new order arrives.',
+  importance: Importance.max,
+  sound: RawResourceAndroidNotificationSound(orderSoundResource),
+  playSound: true,
+  enableVibration: true,
+);
+
+const AndroidNotificationChannel generalChannel = AndroidNotificationChannel(
+  generalChannelId,
+  'High Importance Notifications',
+  description: 'This channel is used for important notifications.',
+  importance: Importance.max,
+  playSound: true,
+  enableVibration: true,
+);
+
+/// Creates the channels up front.
+///
+/// Needed because a notification sent from the server arrives while the app is
+/// backgrounded and is drawn by the Android system, not by this code -- so the
+/// channel must already exist with the right sound. Left to be created
+/// implicitly by the first `show()`, the server's notification lands on an FCM
+/// fallback channel and plays the default tone instead.
+Future<void> _createNotificationChannels() async {
+  final android = flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+  if (android == null) return;
+  await android.createNotificationChannel(orderChannel);
+  await android.createNotificationChannel(generalChannel);
+}
+
 // ─── Background notification tap handler (must be top-level) ────────────────
 
 @pragma('vm:entry-point')
@@ -96,8 +153,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   if (message.notification != null) {
     final notification = message.notification!;
     final android = message.notification?.android;
-    final isOrder = ['new_order', 'order_status', 'order_item_status']
-        .contains(message.data['type']);
+    final isOrder = orderAlertTypes.contains(message.data['type']);
 
     if (android != null) {
       await bgPlugin.show(
@@ -107,18 +163,19 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         notificationDetails: NotificationDetails(
           android: isOrder
               ? const AndroidNotificationDetails(
-                  'order_channel',
-                  'Order Notifications',
-                  channelDescription: 'Sounds for new and updated orders.',
+                  orderChannelId,
+                  orderChannelName,
+                  channelDescription: 'Loud alert when a new order arrives.',
                   importance: Importance.max,
                   priority: Priority.max,
-                  sound: RawResourceAndroidNotificationSound('order_alert'),
+                  sound:
+                      RawResourceAndroidNotificationSound(orderSoundResource),
                   playSound: true,
                   enableVibration: true,
                   ticker: 'ticker',
                 )
               : const AndroidNotificationDetails(
-                  'high_importance_channel',
+                  generalChannelId,
                   'High Importance Notifications',
                   channelDescription:
                       'This channel is used for important notifications.',
@@ -147,8 +204,7 @@ void _handleForegroundMessage(RemoteMessage message) {
     final android = message.notification?.android;
 
     if (android != null && !kIsWeb) {
-      final isOrder = ['new_order', 'order_status', 'order_item_status']
-          .contains(message.data['type']);
+      final isOrder = orderAlertTypes.contains(message.data['type']);
       flutterLocalNotificationsPlugin.show(
         id: notification.hashCode,
         title: notification.title,
@@ -156,18 +212,19 @@ void _handleForegroundMessage(RemoteMessage message) {
         notificationDetails: NotificationDetails(
           android: isOrder
               ? const AndroidNotificationDetails(
-                  'order_channel',
-                  'Order Notifications',
-                  channelDescription: 'Sounds for new and updated orders.',
+                  orderChannelId,
+                  orderChannelName,
+                  channelDescription: 'Loud alert when a new order arrives.',
                   importance: Importance.max,
                   priority: Priority.max,
-                  sound: RawResourceAndroidNotificationSound('order_alert'),
+                  sound:
+                      RawResourceAndroidNotificationSound(orderSoundResource),
                   playSound: true,
                   enableVibration: true,
                   ticker: 'ticker',
                 )
               : const AndroidNotificationDetails(
-                  'high_importance_channel',
+                  generalChannelId,
                   'High Importance Notifications',
                   channelDescription:
                       'This channel is used for important notifications.',
@@ -260,6 +317,8 @@ Future<void> _initLocalNotifications() async {
     onDidReceiveNotificationResponse: selectNotificationStream.add,
     onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
   );
+
+  await _createNotificationChannels();
 }
 
 // ─── Session role check ──────────────────────────────────────────────────────

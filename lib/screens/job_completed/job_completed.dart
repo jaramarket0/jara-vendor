@@ -54,6 +54,10 @@ class _JobCompletedScreenState extends State<JobCompletedScreen> {
     // super.build(context); // Don't forget this!
     final data = ModalRoute.of(context)!.settings.arguments;
     final myData = data as Data;
+    // The customer's own note. Most orders have none, and a heading over
+    // placeholder prose reads as a real instruction from the customer -- the
+    // one thing a vendor must not be given wrongly.
+    final remarks = (myData.orderRemarks ?? '').trim();
     final double size = MediaQuery.of(context).size.width * 0.5;
 
     return Scaffold(
@@ -251,29 +255,30 @@ class _JobCompletedScreenState extends State<JobCompletedScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Message',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
+                          if (remarks.isNotEmpty)
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Message',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Lorem ipsum dolor sit amet consectetur. Nibh malesuada nisi massa pulvinar gravida volutpat vitae consectetur.',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey.shade600,
-                                    height: 1.5,
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    remarks,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                      height: 1.5,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
 
                           //Spacer(),
                           Column(

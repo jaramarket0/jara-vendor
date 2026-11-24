@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_instance/get_instance.dart';
-import 'package:get/route_manager.dart';
+import 'package:get/get.dart';
+import 'package:jara_vendor/screens/legal/privacy_policy_content.dart';
 import 'package:jara_vendor/screens/privacy_policy/controller.dart/privacy_policy_controller.dart';
 
 PrivacyPolicyController controller = Get.put(PrivacyPolicyController());
 
+/// Renders the privacy policy from [PrivacyPolicyContent].
+///
+/// Identical text to the website and the customer app: the three are generated
+/// from one source, because a policy that differs between surfaces is exactly
+/// what an app store reviewer flags. Only the chrome differs here.
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({Key? key}) : super(key: key);
 
@@ -13,68 +18,56 @@ class PrivacyPolicyScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Privacy Policy'),
-        backgroundColor: Colors.green,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Center(
+            Center(
               child: Text(
-                'JARAMARKET VENDOR PRIVACY POLICY',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                PrivacyPolicyContent.title,
+                style: const TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.bold, height: 1.4),
                 textAlign: TextAlign.center,
               ),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'At JaraMarket, your privacy is important to us. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform, including our website and mobile applications. By using JaraMarket, you agree to the terms of this policy.',
-              style: TextStyle(fontSize: 14),
+            const SizedBox(height: 10),
+            Center(
+              child: Text(
+                'Effective ${PrivacyPolicyContent.effectiveDate}\n'
+                'Jurisdiction: ${PrivacyPolicyContent.jurisdiction}',
+                style: const TextStyle(fontSize: 11, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
             ),
-            _buildSection(
-              '1. Information We Collect',
-              'a. Personal Information. We may collect personal details such as:\n'
-                  'Full name - Email address - Phone number - Delivery address - Payment information\n\n'
-                  'b. Vendor Information\n'
-                  'Vendors may be required to provide: Business name - Account details - Bank information for payouts - Location for pickup coordination\n\n'
-                  'c. Usage Information\n'
-                  'We collect: Order history - Interaction with the app/website - Device and browser data - Location data (with permission)',
+            const Divider(height: 28),
+            for (final section in PrivacyPolicyContent.sections) ...[
+              // Section 24 is the contact block, which comes from
+              // configuration rather than the document, so it is spliced in
+              // ahead of 25 to keep the numbering in order.
+              if (section.title.startsWith('25.')) ...[
+                _contactSection(),
+                const SizedBox(height: 18),
+              ],
+              _sectionTitle(section.title),
+              for (final block in section.blocks) _block(block),
+              const SizedBox(height: 18),
+            ],
+            const SizedBox(height: 10),
+            const Center(
+              child: Column(
+                children: [
+                  Text('JARAMARKET',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                  SizedBox(height: 4),
+                  Text('Market at Your Door.',
+                      style: TextStyle(color: Colors.grey, fontSize: 11)),
+                ],
+              ),
             ),
-            _buildSection(
-              '2. How We Use Your Information',
-              'We use collected data to: Process and fulfill orders - Coordinate logistics and deliveries - Communicate with users and vendors - Improve platform performance and user experience - Prevent fraud and unauthorized activity - Provide customer support',
-            ),
-            _buildSection(
-              '3. Sharing Your Information',
-              'We may share your data with: Ryda dispatch partners for delivery coordination - Payment processors for secure transactions - Third-party service providers helping us run the platform - Legal authorities, if required by law or to protect rights - We do not sell your personal data to third parties.',
-            ),
-            _buildSection(
-              '4. Data Security',
-              'We implement strong security measures to protect your data, including: Secure socket layer (SSL) encryption - Access controls and authentication protocols - Regular security reviews',
-            ),
-            _buildSection(
-              '5. User Rights',
-              'You have the right to: Access or update your personal information - Request deletion of your data (subject to legal obligations) - Opt out of promotional communications at any time',
-            ),
-            _buildSection(
-              '6. Cookies & Tracking',
-              'We may use cookies to enhance user experience and analytics. You can manage cookie preferences through your browser settings.',
-            ),
-            _buildSection(
-              '7. Children\'s Privacy',
-              'JaraMarket is not intended for children under 13. We do not knowingly collect personal information from minors.',
-            ),
-            _buildSection(
-              '8. Changes to This Policy',
-              'We may update this Privacy Policy from time to time. Any changes will be posted on this page with an updated effective date.',
-            ),
-            _buildSection(
-              '9. Contact Us',
-              'For questions or concerns about this Privacy Policy, please contact: JaraMarket Support\n'
-                  'Email: jaramarket1@gmail.com - Phone: 08088884983',
-            ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 24),
             Center(
               child: ElevatedButton(
                 onPressed: () {
@@ -97,17 +90,121 @@ class PrivacyPolicyScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSection(String title, String content) {
+  Widget _sectionTitle(String title) => Padding(
+        padding: const EdgeInsets.only(top: 10, bottom: 8),
+        child: Text(
+          title,
+          style: const TextStyle(
+              fontSize: 15, fontWeight: FontWeight.bold, height: 1.3),
+        ),
+      );
+
+  Widget _block(PolicyBlock block) {
+    switch (block.kind) {
+      case 'h3':
+        return Padding(
+          padding: const EdgeInsets.only(top: 12, bottom: 6),
+          child: Text(
+            block.text,
+            style: const TextStyle(
+                fontSize: 13, fontWeight: FontWeight.w600, height: 1.4),
+          ),
+        );
+      case 'ul':
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [for (final item in block.items) _bullet('•', item)],
+          ),
+        );
+      case 'ol':
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var i = 0; i < block.items.length; i++)
+                _bullet('${i + 1}.', block.items[i]),
+            ],
+          ),
+        );
+      default:
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Text(block.text,
+              style: const TextStyle(fontSize: 13, height: 1.55)),
+        );
+    }
+  }
+
+  /// Marker and text in a Row so wrapped lines align under the text rather
+  /// than under the bullet.
+  Widget _bullet(String marker, String text) => Padding(
+        padding: const EdgeInsets.only(bottom: 4, left: 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 20,
+              child: Text(marker,
+                  style: const TextStyle(fontSize: 13, height: 1.55)),
+            ),
+            Expanded(
+              child: Text(text,
+                  style: const TextStyle(fontSize: 13, height: 1.55)),
+            ),
+          ],
+        ),
+      );
+
+  /// Section 24. Rows with an empty value are skipped: an absent detail must
+  /// disappear, never render as "[Insert support email]".
+  Widget _contactSection() {
+    final rows = PrivacyPolicyContent.contactRows
+        .where((r) => r[1].trim().isNotEmpty)
+        .toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 16),
-        Text(
-          title,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        _sectionTitle('24. CONTACT AND PRIVACY COMPLAINTS'),
+        Text(PrivacyPolicyContent.contactIntro,
+            style: const TextStyle(fontSize: 13, height: 1.55)),
+        const SizedBox(height: 10),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF4F4F4),
+            border: Border.all(color: Colors.black12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final row in rows)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 9),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(row[0].toUpperCase(),
+                          style: const TextStyle(
+                              fontSize: 9,
+                              letterSpacing: 0.6,
+                              color: Colors.grey)),
+                      const SizedBox(height: 2),
+                      Text(row[1],
+                          style: const TextStyle(fontSize: 12, height: 1.4)),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
-        const SizedBox(height: 8),
-        Text(content, style: const TextStyle(fontSize: 14)),
+        const SizedBox(height: 10),
+        Text(PrivacyPolicyContent.contactOutro,
+            style: const TextStyle(fontSize: 13, height: 1.55)),
       ],
     );
   }

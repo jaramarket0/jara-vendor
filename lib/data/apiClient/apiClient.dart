@@ -1798,11 +1798,19 @@ class ApiClient extends GetConnect {
 ApiClient apiClient = ApiClient(API_TIMEOUT_DURATION);
 
 final AuthHttpClient authHttpClient = AuthHttpClient(
-  onUnauthenticated: () async {
+  onUnauthenticated: (code) async {
     await dataBase.clearAuthSession();
     if (Get.currentRoute != AppRoutes.login) {
       Get.offAllNamed(AppRoutes.login);
-      Get.snackbar('Session expired', 'Please log in again to continue.');
+      // Being bumped off by a second phone is a rule, not a fault, so say so
+      // plainly -- otherwise it reads as the app logging people out at random.
+      if (code == 'session_superseded') {
+        Get.snackbar('Signed in on another device',
+            'This account can only be used on one phone at a time. '
+            'Log in again to use it here.');
+      } else {
+        Get.snackbar('Session expired', 'Please log in again to continue.');
+      }
     }
   },
 );
