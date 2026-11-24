@@ -15,6 +15,20 @@ class ProductSelectionController extends GetxController {
   RxList<String> selectedProductName = <String>[].obs;
 
   RxInt appendCount = 0.obs;
+
+  /// Which categories are expanded, kept apart from which are selected.
+  /// Tying the two together meant a vendor had to SELECT a category just to
+  /// see what was inside it, and lost the list again the moment they
+  /// changed their mind.
+  final RxSet<int> expanded = <int>{}.obs;
+
+  void toggleExpanded(int categoryId) {
+    if (expanded.contains(categoryId)) {
+      expanded.remove(categoryId);
+    } else {
+      expanded.add(categoryId);
+    }
+  }
   VendorCategoryModel vendorCategoryModel = VendorCategoryModel(
     data: [],
     message: '',

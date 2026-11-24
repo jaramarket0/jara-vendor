@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/route_manager.dart';
@@ -176,111 +175,150 @@ class _ProductSelectionScreenState extends State<ProductSelectionScreen> {
   }
 
   Widget _buildProductItem(Data product, bool isSelected, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: AnimatedSize(
-        duration: Duration(milliseconds: 300),
+    return Obx(() {
+      final isOpen = controller.expanded.contains(product.id);
+      const amber = Color(0xFFFF9800);
+      return AnimatedSize(
+        duration: const Duration(milliseconds: 220),
         curve: Curves.easeInOut,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? const Color(0xFFFF9800).withAlpha(
-                        26,
-                      ) // Changed from withOpacity(0.1)
-                    : Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: isSelected
-                      ? const Color(0xFFFF9800)
-                      : Colors.grey.shade300,
-                  width: 1,
-                ),
-              ),
-              child: Row(
-                spacing: 5,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 10),
-                    width: 45,
-                    height: 45,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? const Color(0xFFFF9800)
-                          : Colors.grey.shade200,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      _getIconForProduct(product.name),
-                      color: isSelected ? Colors.white : Colors.grey.shade600,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    product.name.length > 25
-                        ? '${product.name.substring(0, 23)}...'
-                        : product.name,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                      color: isSelected
-                          ? const Color(0xFFFF9800)
-                          : Colors.black,
-                    ),
-                  ),
-                  if (isSelected)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 8.0),
-                      child: Icon(Icons.check_circle, color: Color(0xFFFF9800)),
-                    ),
-                  Spacer(),
-                  isSelected
-                      ? SvgPicture.asset('assets/down.svg')
-                      : SvgPicture.asset('assets/left.svg'),
-                  //Icon(Icons.chevron_right),
-                  SizedBox(width: 10),
-                ],
-              ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isSelected ? amber.withAlpha(20) : Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? amber : Colors.grey.shade300,
+              width: 1,
             ),
-            isSelected
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: product.ingredients.map((e) {
-                      return Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 10,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Tapping the row expands it; the checkbox selects it. Those
+              // were the same gesture before, so a vendor could not look
+              // inside a category without also committing to it.
+              InkWell(
+                onTap: product.ingredients.isEmpty
+                    ? onTap
+                    : () => controller.toggleExpanded(product.id),
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: isSelected ? amber : Colors.grey.shade200,
+                          shape: BoxShape.circle,
                         ),
+                        child: Icon(
+                          _getIconForProduct(product.name),
+                          color: isSelected ? Colors.white : Colors.grey.shade600,
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            //  List<bool> selct = List.generate(product.products.length, (value)=> value),
-                            Row(
-                              children: [
-                                Checkbox(
-                                  value: isSelected,
-                                  onChanged: (value) {},
-                                ),
-                                Text(' ${e.name}'),
-                              ],
+                            Text(
+                              product.name,
+                              maxLines: 1,
+                              // Was a manual substring at 25 chars, which cut
+                              // mid-word and ignored the real width available.
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: isSelected
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                                color: isSelected ? amber : Colors.black87,
+                              ),
                             ),
-                            //   Divider(),
+                            if (product.ingredients.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(
+                                  '${product.ingredients.length} item'
+                                  '${product.ingredients.length == 1 ? '' : 's'}',
+                                  style: TextStyle(
+                                      fontSize: 11.5,
+                                      color: Colors.grey.shade600),
+                                ),
+                              ),
                           ],
                         ),
-                      );
-                    }).toList(),
-                  )
-                : SizedBox.shrink(),
-          ],
+                      ),
+                      if (product.ingredients.isNotEmpty)
+                        AnimatedRotation(
+                          turns: isOpen ? 0.25 : 0,
+                          duration: const Duration(milliseconds: 200),
+                          child: Icon(Icons.chevron_right_rounded,
+                              color: Colors.grey.shade500),
+                        ),
+                      // The real control: what actually gets saved.
+                      Checkbox(
+                        value: isSelected,
+                        activeColor: amber,
+                        onChanged: (_) => onTap(),
+                        materialTapTargetSize:
+                            MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (isOpen && product.ingredients.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Divider(color: Colors.grey.shade300, height: 1),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Selecting this category offers you orders for any of these:',
+                        style: TextStyle(
+                            fontSize: 11.5,
+                            color: Colors.grey.shade600,
+                            height: 1.35),
+                      ),
+                      const SizedBox(height: 8),
+                      // Plain chips, not checkboxes. Only the category is
+                      // saved, so a tickbox here promised per-ingredient
+                      // control that does not exist -- and every one of them
+                      // was wired to the parent's value with a no-op
+                      // onChanged, so they all looked ticked and did nothing.
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: product.ingredients.map((e) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: Text(
+                              e.name,
+                              style: const TextStyle(
+                                  fontSize: 12, color: Colors.black87),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildOthersItem({bool isSelected = true}) {
