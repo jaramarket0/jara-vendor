@@ -5,6 +5,7 @@ import 'package:jara_vendor/data/apiClient/apiClient.dart';
 import 'package:jara_vendor/screens/orders_screen/models/accepted_order.dart';
 import 'package:jara_vendor/screens/orders_screen/models/models.dart';
 import 'dart:developer' as myLog;
+import 'package:jara_vendor/utils/app_feedback.dart';
 
 class OrdersController extends GetxController {
   ApiClient apiClient = ApiClient(Duration(seconds: 60 * 5));
@@ -48,12 +49,12 @@ class OrdersController extends GetxController {
         availableData.value = orderModel.data ?? [];
       } else {
         isLoadingOrders.value = false;
-        Get.snackbar('Something Went Wrong', jsonDecode(response.body));
+        AppFeedback.showApiError(response);
         myLog.log(jsonDecode(response.body));
       }
     } catch (e) {
       isLoadingOrders.value = false;
-      Get.snackbar('Error', e.toString());
+      AppFeedback.showError(e);
       myLog.log(e.toString());
     } finally {
       isLoadingOrders.value = false;
@@ -71,13 +72,13 @@ class OrdersController extends GetxController {
         acceptedData.value = acceptedOrderModel.data ?? [];
       } else {
         isloadingAccpted.value = false;
-        Get.snackbar('Something Went Wrong', jsonDecode(response.body));
+        AppFeedback.showApiError(response);
         myLog.log(jsonDecode(response.body));
       }
     } catch (e) {
       myLog.log(e.toString());
       isloadingAccpted.value = false;
-      Get.snackbar('Error', e.toString());
+      AppFeedback.showError(e);
       myLog.log(e.toString());
     } finally {
       isloadingAccpted.value = false;

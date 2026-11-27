@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jara_vendor/data/apiClient/apiClient.dart';
+import 'package:jara_vendor/utils/app_feedback.dart';
 
 class BusinessController extends GetxController {
   ApiClient apiClient = ApiClient(Duration(milliseconds: 60 * 5));
@@ -85,7 +86,7 @@ class BusinessController extends GetxController {
       }
     } catch (e) {
       OverlayLoadingProgress.stop();
-      Get.snackbar("Error occurred:", e.toString());
+      AppFeedback.showError(e);
       myLog.log(e.toString());
     } finally {
       OverlayLoadingProgress.stop();

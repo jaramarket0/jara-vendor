@@ -6,6 +6,7 @@ import 'package:jara_vendor/screens/checkout_address_change/models/country_model
 import 'package:jara_vendor/screens/checkout_address_change/models/lga_model.dart';
 import 'package:jara_vendor/screens/checkout_address_change/models/state_model.dart';
 import 'package:jara_vendor/screens/profile_screen/controller/profile_controller.dart';
+import 'package:jara_vendor/utils/app_feedback.dart';
 
 class CheckoutAddressChangeController extends GetxController {
   ApiClient _apiService = ApiClient(Duration(seconds: 60 * 5));
@@ -72,12 +73,7 @@ class CheckoutAddressChangeController extends GetxController {
       myLog.log('Countries: ${countries.join(', ')}');
     } else {
       isCountryLoading.value = false;
-      Get.snackbar(
-        'Error',
-        'Failed to load countries: ${response.body}',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      AppFeedback.showApiError(response);
     }
   }
 
@@ -94,12 +90,7 @@ class CheckoutAddressChangeController extends GetxController {
       myLog.log('States: ${states.join(', ')}');
     } else {
       isStateLoading.value = false;
-      Get.snackbar(
-        'Error',
-        'Failed to load states: ${response.body}',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      AppFeedback.showApiError(response);
     }
   }
 
@@ -116,12 +107,7 @@ class CheckoutAddressChangeController extends GetxController {
       myLog.log('LGAs: ${lgas.join(', ')}');
     } else {
       isLgaLoading.value = false;
-      Get.snackbar(
-        'Error',
-        'Failed to load LGAs: ${response.body}',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      AppFeedback.showApiError(response);
       myLog.log('Failed to load LGAs: ${response.body}');
     }
   }
@@ -175,22 +161,12 @@ class CheckoutAddressChangeController extends GetxController {
                 print('Cannot pop the current route');
               }
             } else {
-              Get.snackbar(
-                'Error',
-                'Failed to update address: ${response.body}',
-                backgroundColor: Colors.red,
-                colorText: Colors.white,
-              );
+              AppFeedback.showApiError(response);
             }
           })
           .catchError((error) {
             isLoading.value = false;
-            Get.snackbar(
-              'Error',
-              'An error occurred: $error',
-              backgroundColor: Colors.red,
-              colorText: Colors.white,
-            );
+            AppFeedback.showError(error);
           });
     } else {
       Get.snackbar(
@@ -243,22 +219,12 @@ class CheckoutAddressChangeController extends GetxController {
               profileController.fetchUserProfile();
             });
           } else {
-            Get.snackbar(
-              'Error',
-              'Failed to store address: ${response.body}',
-              backgroundColor: Colors.red,
-              colorText: Colors.white,
-            );
+            AppFeedback.showApiError(response);
           }
         })
         .catchError((error) {
           isLoading.value = false;
-          Get.snackbar(
-            'Error',
-            'An error occurred while storing address: $error',
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-          );
+          AppFeedback.showError(error);
         });
   }
 }

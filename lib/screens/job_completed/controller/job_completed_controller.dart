@@ -7,6 +7,7 @@ import 'package:jara_vendor/data/apiClient/apiClient.dart';
 import 'package:jara_vendor/screens/orders_screen/controller/orders_controller.dart';
 import 'package:jara_vendor/screens/orders_screen/models/models.dart';
 import 'package:overlay_kit/overlay_kit.dart';
+import 'package:jara_vendor/utils/app_feedback.dart';
 
 class JobCompletedController extends GetxController {
   // RxBool isStarted = false.obs;
@@ -30,12 +31,7 @@ class JobCompletedController extends GetxController {
         countDownController.start();
         controller.fetchOrders();
         controller.fetchAcceptedOrders();
-        Get.snackbar(
-          'Success',
-          jsonDecode(response.body)['message'] ?? 'Sucess',
-          colorText: Colors.white,
-          backgroundColor: Colors.green,
-        );
+        AppFeedback.showApiError(response);
       } else {
         OverlayLoadingProgress.stop();
       }
@@ -59,12 +55,7 @@ class JobCompletedController extends GetxController {
         //countDownController.start();
         controller.fetchOrders();
         controller.fetchAcceptedOrders();
-        Get.snackbar(
-          'Success',
-          jsonDecode(response.body)['message'] ?? 'Sucess',
-          colorText: Colors.white,
-          backgroundColor: Colors.green,
-        );
+        AppFeedback.showApiError(response);
       } else {
         OverlayLoadingProgress.stop();
       }
@@ -84,32 +75,17 @@ class JobCompletedController extends GetxController {
       if (response.statusCode == 200 || response.statusCode == 201) {
         OverlayLoadingProgress.stop();
         controller.fetchAcceptedOrders();
-        Get.snackbar(
-          'Success',
-          jsonDecode(response.body)['message'] ?? 'Sucess',
-          colorText: Colors.white,
-          backgroundColor: Colors.green,
-        );
+        AppFeedback.showApiError(response);
         return true;
       } else {
         OverlayLoadingProgress.stop();
-        Get.snackbar(
-          'Error',
-          jsonDecode(response.body)['message'] ?? 'Could not mark as delivered',
-          colorText: Colors.white,
-          backgroundColor: Colors.red,
-        );
+        AppFeedback.showApiError(response);
         return false;
       }
     } catch (e) {
       OverlayLoadingProgress.stop();
       myLog.log(e.toString());
-      Get.snackbar(
-        'Error',
-        e.toString(),
-        colorText: Colors.white,
-        backgroundColor: Colors.red,
-      );
+      AppFeedback.showError(e);
       return false;
     } finally {
       OverlayLoadingProgress.stop();

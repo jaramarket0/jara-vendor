@@ -8,6 +8,7 @@ import 'package:jara_vendor/screens/market_screen/models/models.dart';
 import 'package:jara_vendor/utils/storage.dart';
 import 'package:overlay_kit/overlay_kit.dart';
 import 'dart:developer' as myLog;
+import 'package:jara_vendor/utils/app_feedback.dart';
 
 class MarketController extends GetxController {
   ApiClient apiClient = ApiClient(Duration(seconds: 60 * 5));
@@ -83,21 +84,11 @@ class MarketController extends GetxController {
         var model = marketModelFromJson(response.body);
         markets.value = model.data;
       } else {
-        Get.snackbar(
-          "Error",
-          "Failed to load markets: ${response.body}",
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
+        AppFeedback.showApiError(response);
       }
     } catch (e) {
       myLog.log(e.toString());
-      Get.snackbar(
-        "Error occurred:",
-        e.toString(),
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      AppFeedback.showError(e);
     } finally {
       isLoading.value = false;
     }
@@ -135,7 +126,7 @@ class MarketController extends GetxController {
       }
     } catch (e) {
       OverlayLoadingProgress.stop();
-      Get.snackbar("Error occurred:", e.toString());
+      AppFeedback.showError(e);
       myLog.log(e.toString());
     } finally {
       OverlayLoadingProgress.stop();

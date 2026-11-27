@@ -6,6 +6,7 @@ import 'package:jara_vendor/utils/storage.dart';
 import 'package:overlay_kit/overlay_kit.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer' as myLog;
+import 'package:jara_vendor/utils/app_feedback.dart';
 
 class ShopSizeController extends GetxController {
   ApiClient apiClient = ApiClient(Duration(seconds: 60 * 5));
@@ -89,7 +90,7 @@ class ShopSizeController extends GetxController {
       }
     } catch (e) {
       OverlayLoadingProgress.stop();
-      Get.snackbar("Error occurred:", e.toString());
+      AppFeedback.showError(e);
       myLog.log(e.toString());
     } finally {
       OverlayLoadingProgress.stop();

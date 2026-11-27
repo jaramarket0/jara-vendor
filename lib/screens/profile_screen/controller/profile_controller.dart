@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jara_vendor/screens/profile_screen/models/model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:jara_vendor/utils/app_feedback.dart';
 
 class ProfileController extends GetxController {
   ApiClient _apiService = ApiClient(Duration(seconds: 60 * 5));
@@ -107,7 +108,7 @@ TextEditingController pinController = TextEditingController();
       // }
     } catch (e) {
       myLog.log("error: $e");
-      Get.snackbar('error', e.toString());
+      AppFeedback.showError(e);
     }
   }
 
@@ -133,7 +134,7 @@ TextEditingController pinController = TextEditingController();
       // }
     } catch (e) {
       myLog.log("error: $e");
-      Get.snackbar('error', e.toString());
+      AppFeedback.showError(e);
     }
   }
 
@@ -221,7 +222,7 @@ TextEditingController pinController = TextEditingController();
       }
     } catch (e) {
       isLoading.value = false;
-      Get.snackbar("Error occurred:", e.toString());
+      AppFeedback.showError(e);
       myLog.log(e.toString());
       // ScaffoldMessenger.of(Get.context!).showSnackBar(
       //   SnackBar(content: Text('Error: $e')),
@@ -356,7 +357,7 @@ TextEditingController pinController = TextEditingController();
       }
     } catch (e) {
       isLoading.value = false;
-      Get.snackbar('Error', e.toString());
+      AppFeedback.showError(e);
       myLog.log('Error setting PIN: $e');
     }
   }
@@ -381,7 +382,7 @@ TextEditingController pinController = TextEditingController();
       }
     } catch (e) {
       isLoading.value = false;
-      Get.snackbar('Error', e.toString());
+      AppFeedback.showError(e);
       myLog.log('Error verifying PIN: $e');
     }
   }
@@ -425,7 +426,7 @@ TextEditingController pinController = TextEditingController();
       }
     } catch (e) {
       isLoading.value = false;
-      Get.snackbar('Error', e.toString());
+      AppFeedback.showError(e);
       myLog.log('Error clearing PIN: $e');
     }
   }
